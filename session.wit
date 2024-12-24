@@ -1,0 +1,10 @@
+interface session {
+        use types.{
+                session,
+                empty-result,
+        };
+
+        current: func() -> session;
+        push: func(session: session, data: list<u8>) -> empty-result;
+        iproto-send: func(session: session, header: list<u8>, body: list<u8>) -> empty-result;
+}

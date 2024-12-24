@@ -1,0 +1,51 @@
+interface %tuple {
+        use types.{
+                tuple-format,
+                tuple-result,
+                tuple-field-type,
+                tuple-field-result,
+                key-part-def,
+                key-def-result,
+                key-def,
+                key-part-def-list-result,
+                buffer-result,
+                validate-key-result,
+                tuple-format-result,
+                %tuple,
+        };
+
+        tuple-format-default: func() -> tuple-format;
+        ref: func(%tuple: %tuple) -> s32;
+        unref: func(%tuple: %tuple);
+        field-count: func(%tuple: %tuple) -> u32;
+        bsize: func(%tuple: %tuple) -> u64;
+        to-buf: func(%tuple: %tuple) -> list<u8>;
+        format: func(%tuple: %tuple) -> tuple-format;
+        field: func(%tuple: %tuple, idx: u32) -> tuple-field-result;
+        field-by-path: func(path: string, index-base: s32) -> tuple-field-result;
+
+        new-tuple: func(format: tuple-format, data: list<u8>) -> tuple-result;
+        update: func(%tuple: %tuple, expr: list<u8>) -> tuple-result;
+        upsert: func(%tuple: %tuple, expr: list<u8>) -> tuple-result;
+        validate: func(%tuple: %tuple, format: tuple-format) -> bool;
+
+        new-key-def: func(fields: list<u8>, types: list<tuple-field-type>) -> key-def-result;
+        new-key-def-v2: func(parts: list<key-part-def>) -> key-def-result;
+        dup: func(key-def: key-def) -> key-def-result;
+        delete: func(key-def: key-def);
+        dump-parts: func(key-def: key-def) -> key-part-def-list-result;
+
+        validate-tuple: func(%tuple: %tuple, key-def: key-def) -> bool;
+        compare: func(left: %tuple, right: %tuple, key-def: key-def) -> s32;
+        compare-with-key: func(%tuple: %tuple, key: list<u8>, key-def: key-def) -> s32;
+        merge: func(left: key-def, right: key-def) -> key-def-result;
+        extract-key: func(%tuple: %tuple, key-def: key-def, multikey-idx: s32) -> buffer-result;
+
+        validate-key: func(key: list<u8>, key-def: key-def) -> validate-key-result;
+        validate-full-key: func(key: list<u8>, key-def: key-def) -> validate-key-result;
+
+        new-tuple-format: func(key-def: list<key-def>) -> tuple-format-result;
+        ref-tuple-format: func(tf: tuple-format);
+        unref-tuple-format: func(tf: tuple-format);
+}
+

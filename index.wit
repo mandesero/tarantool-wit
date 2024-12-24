@@ -1,0 +1,17 @@
+interface index {
+        use types.{
+                index,
+                box-error,
+                tuple-result,
+                s64-result,
+                iterator-type,
+        };
+
+        len: func(index: index) -> s64-result;
+        bsize: func(index: index) -> s64-result;
+        random: func(index: index, rnd: u32) -> tuple-result;
+        get: func(index: index, key: list<u8>) -> tuple-result;
+        min: func(index: index, key: list<u8>) -> tuple-result;
+        max: func(index: index, key: list<u8>) -> tuple-result;
+        count: func(iter-type: iterator-type, key: list<u8>) -> s64-result;
+}

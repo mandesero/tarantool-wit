@@ -1,0 +1,8 @@
+interface error {
+        use types.{box-error};
+
+        last: func() -> option<box-error>;
+        clear: func();
+        set: func(err: box-error);
+        to-string: func(err: box-error) -> string;
+}

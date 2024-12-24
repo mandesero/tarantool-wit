@@ -1,0 +1,28 @@
+interface box {
+        use types.{
+                space,
+                index,
+                tuple-result,
+                index-result,
+                space-result,
+                empty-result,
+        };
+
+        schema-version: func() -> s64;
+
+        space-by-name: func(name: string) -> space-result;
+
+        index-by-name: func(name: string, index-base: s32) -> index-result;
+
+        insert: func(space: space, tup: list<u8>) -> tuple-result;
+
+        replace: func(space: space, tup: list<u8>) -> tuple-result;
+
+        truncate: func(space: space) -> empty-result;
+
+        delete: func(index: index, key: list<u8>) -> tuple-result;
+
+        update: func(index: index, key: list<u8>, ops: list<u8>) -> tuple-result;
+
+        upsert: func(index: index, tup: list<u8>, ops: list<u8>) -> tuple-result;
+}

@@ -1,0 +1,12 @@
+interface sequence {
+        use types.{
+                sequence,
+                s64-result,
+                empty-result,
+        };
+
+        next: func(seq: sequence) -> s64-result;
+        current: func(seq: sequence) -> s64-result;
+        set: func(seq: sequence, value: s64) -> empty-result;
+        reset: func(seq: sequence) -> empty-result;
+}
