@@ -47,7 +47,7 @@ named type.
 ## Generating bindings
 ```sh
 $ componentize-py --wit-path /path/to/repo --world tarantool bindings /output/dir
-$ wit-bindgen c-sharp --runtime native-aot ../tarantool-wit
+$ wit-bindgen c-sharp --runtime native-aot /path/to/repo
 
 $ wit-bindgen
 Usage: wit-bindgen <COMMAND>
