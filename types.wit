@@ -43,6 +43,22 @@
  */
 
 interface types {
+        record update-op {
+                field-no: u32,
+                op: string,
+                operand: list<u8>,
+        }
+
+        record index-stat {
+                bsize: s64,
+                len: s64,
+        }
+
+        record peer {
+                host: string,
+                port: u32,
+            }
+
         record box-error {
                 message: string,
                 %type: string,
@@ -67,12 +83,34 @@ interface types {
                 id: s32,
         }
 
+        record sequence-options {
+                start: s64,
+                increment: s64,
+                min: s64,
+                max: s64,
+                cycle: bool,
+        }
+
         record session {
                 id: s64,
         }
 
         record space {
                 id: s32,
+        }
+
+        record pairs-opts {
+                key: option<list<u8>>,
+                iterator: option<iterator-type>,
+                after: option<s64>,
+        }
+
+        record select-opts {
+                iterator: option<iterator-type>,
+                limit: option<u32>,
+                offset: option<u32>,
+                after: option<s64>,
+                fetch-pos: option<bool>,
         }
 
         resource iterator {
@@ -183,6 +221,14 @@ interface types {
                 txn-isolation-level-max,
         }
 
+        enum index-type {
+                tree,
+                hash,
+                bitset,
+                rtree,
+                index-type-max,
+        }
+
         type key-def = u64;
 
         type %tuple = u64;
@@ -208,4 +254,12 @@ interface types {
         type tuple-iterator-result = result<tuple-iterator, box-error>;
         type tuple-result = result<%tuple, box-error>;
         type validate-key-result = result<tuple<bool, u32>, box-error>;
+        type tuple-list-result = result<list<%tuple>, box-error>;
+        type index-stat-result = result<index-stat, box-error>;
+        type peer-result = result<peer, box-error>;
+        type bool-result = result<bool, box-error>;
+        type string-result = result<string, box-error>;
+        type storage-result = result<list<tuple<string, string>>, box-error>;
+        type sequence-result = result<sequence, box-error>;
+        type select-result = result<list<%tuple>, box-error>;
 }

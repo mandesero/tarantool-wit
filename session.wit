@@ -2,9 +2,24 @@ interface session {
         use types.{
                 session,
                 empty-result,
+                s64-result,
+                bool-result,
+                string-result,
+                peer-result,
+                storage-result,
         };
 
         current: func() -> session;
         push: func(session: session, data: list<u8>) -> empty-result;
         iproto-send: func(session: session, header: list<u8>, body: list<u8>) -> empty-result;
+        id: func(session: session) -> s64-result;
+        exists: func() -> bool-result;
+        peer: func(session: session) -> peer-result;
+        sync: func() -> s64-result;
+        user: func() -> string-result;
+        %type: func(session: session) -> string-result;
+        su: func(session: session, user: string) -> empty-result;
+        uid: func(session: session) -> s64-result;
+        euid: func(session: session) -> s64-result;
+        storage: func(session: session) -> storage-result;
 }
