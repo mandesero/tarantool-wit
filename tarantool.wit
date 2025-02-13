@@ -1,13 +1,15 @@
 package tarantool:tarantool;
 
 world tarantool {
-        import types;
-        import box;
-        import error;
-        import index;
-        import say;
-        import sequence;
-        import session;
-        import %tuple;
-        import txn;
+    import types;
+    import key-def;
+    import tuple-format;
+    import %tuple;
+    import error;
+    import say;
+    import txn;
+    import box;
+    import session;
+    import sequence;
+    import index;
 }

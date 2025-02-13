@@ -1,17 +1,39 @@
 interface index {
-        use types.{
-                index,
-                box-error,
-                tuple-result,
-                s64-result,
-                iterator-type,
-        };
+    use types.{
+            index,
+            box-error,
+            box-tuple,
+            iterator-type,
+            key-part-def,
+            key-part-def-list,
+            update-op,
+            tuple-list,
+            index-type,
+            iterator,
+            index-stat,
+            pairs-opts,
+            select-opts,
+    };
 
-        len: func(index: index) -> s64-result;
-        bsize: func(index: index) -> s64-result;
-        random: func(index: index, rnd: u32) -> tuple-result;
-        get: func(index: index, key: list<u8>) -> tuple-result;
-        min: func(index: index, key: list<u8>) -> tuple-result;
-        max: func(index: index, key: list<u8>) -> tuple-result;
-        count: func(iter-type: iterator-type, key: list<u8>) -> s64-result;
+    len: func(index: index) -> result<s64, box-error>;
+    bsize: func(index: index) -> result<s64, box-error>;
+    random: func(index: index, rnd: u32) -> result<box-tuple, box-error>;
+    get: func(index: index, key: list<u8>) -> result<box-tuple, box-error>;
+    min: func(index: index, key: list<u8>) -> result<box-tuple, box-error>;
+    max: func(index: index, key: list<u8>) -> result<box-tuple, box-error>;
+    count: func(iter-type: iterator-type, key: list<u8>) -> result<s64, box-error>;
+
+    unique: func(index: index) -> result<bool, box-error>;
+    get-type: func(index: index) -> result<index-type, box-error>;
+    parts: func(index: index) -> result<key-part-def-list, box-error>;
+    pairs: func(index: index, opts: pairs-opts) -> result<iterator, box-error>;
+    select: func(index: index, key: list<u8>, opts: select-opts) -> result<list<box-tuple>, box-error>;
+    update: func(index: index, key: list<u8>, ops: list<update-op>) -> result<box-tuple, box-error>;
+    delete: func(index: index, key: list<u8>) -> result<box-tuple, box-error>;
+    alter: func(index: index, unique: bool, parts: list<key-part-def>) -> result<_, box-error>;
+    drop: func(index: index) -> result<_, box-error>;
+    rename: func(index: index, new-name: string) -> result<_, box-error>;
+    stat: func(index: index) -> result<index-stat, box-error>;
+    compact: func(index: index) -> result<_, box-error>;
+    tuple-pos: func(index: index, key: list<u8>) -> result<s64, box-error>;
 }

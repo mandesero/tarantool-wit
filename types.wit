@@ -43,169 +43,164 @@
  */
 
 interface types {
-        record box-error {
-                message: string,
-                %type: string,
-                code: u32,
-        }
 
-        record index {
-                id: s32,
-                space-id: s32,
-                index-base: s32,
-        }
+    enum log-level {
+        s-fatal,
+        s-syserror,
+        s-error,
+        s-crit,
+        s-warn,
+        s-info,
+        s-verbose,
+        s-debug,
+        say-level-max,
+    }
 
-        record key-part-def {
-                field-no: u32,
-                %flags: u32,
-                field-type: string,
-                collation: option<string>,
-                path: option<string>,
-        }
+    enum iterator-type {
+        iter-eq,
+        iter-req,
+        iter-all,
+        iter-lt,
+        iter-le,
+        iter-ge,
+        iter-gt,
+        iter-bits-all-set,
+        iter-bits-any-set,
+        iter-bits-all-not-set,
+        iter-overlaps,
+        iter-neighbor,
+        iter-np,
+        iter-pp,
+        iterator-type-max,
+    }
 
-        record sequence {
-                id: s32,
-        }
+    enum txn-isolation-level {
+        /** take isolation level from global default_isolation_level. */
+        txn-isolation-default,
+        /** allow to read committed, but not confirmed changes. */
+        txn-isolation-read-committed,
+        /** allow to read only confirmed changes. */
+        txn-isolation-read-confirmed,
+        /** determine isolation level automatically. */
+        txn-isolation-best-effort,
+        /** allow to read only the changes confirmed on any cluster node. */
+        txn-isolation-linearizable,
+        /** upper bound of valid values. */
+        txn-isolation-level-max,
+    }
 
-        record session {
-                id: s64,
-        }
+    enum index-type {
+        tree,
+        hash,
+        bitset,
+        rtree,
+        index-type-max,
+    }
 
-        record space {
-                id: s32,
-        }
+    flags key-part-flags {
+        is-nullable,
+        exclude-null,
+    }
 
-        resource iterator {
-                /*
-                 * Resource constructor can't return a result type, so we opt
-                 * to use a static function instead.
-                 */
-                new-iterator: static func(index: index, iterator-type: iterator-type, key: list<u8>) -> iterator-result;
+    variant field-identifier {
+        number(u32),
+        name(string),
+    }
 
-                next: func() -> tuple-result;
+    record key-part-def {
+        field: field-identifier,
+        field-type: string,
+        collation: option<string>,
+        path: option<string>,
+        %flags: key-part-flags,
+    }
 
-                /*
-                 * Free is implicitly added by the bindgen for every resource.
-                 */
-        }
+    record box-error {
+        message: string,
+        %type: string,
+        code: u32,
+        payload: option<list<tuple<string, string>>>,
+        file: option<string>,
+        line: option<u32>,
+    }
 
-        resource tuple-iterator {
-                /*
-                 * Resource constructor can't return a result type, so we opt
-                 * to use a static function instead.
-                 */
-                new-tuple-iterator: static func(%tuple: %tuple) -> tuple-iterator-result;
+    record index {
+        id: s32,
+        space-id: s32,
+        index-base: s32,
+    }
 
-                position: func() -> u32;
+    record sequence {
+        id: s32,
+    }
 
-                rewind: func();
+    record space {
+        id: s32,
+    }
+    
+    record sequence-options {
+        start: s64,
+        increment: s64,
+        min: s64,
+        max: s64,
+        cycle: bool,
+    }
 
-                seek: func(pos: u32) -> tuple-field-result;
+    record peer {
+        host: string,
+        port: u32,
+    }
 
-                next: func() -> tuple-field-result;
+    record session {
+        id: s64,
+    }
 
-                /*
-                 * Free is implicitly added by the bindgen for every resource.
-                 */
-        }
+    record select-opts {
+        iterator: option<iterator-type>,
+        limit: option<u32>,
+        offset: option<u32>,
+        after: option<s64>,
+        fetch-pos: option<bool>,
+    }
 
-        enum iterator-type {
-                iter-eq,
-                iter-req,
-                iter-all,
-                iter-lt,
-                iter-le,
-                iter-ge,
-                iter-gt,
-                iter-bits-all-set,
-                iter-bits-any-set,
-                iter-bits-all-not-set,
-                iter-overlaps,
-                iter-neighbor,
-                iter-np,
-                iter-pp,
-                iterator-type-max,
-        }
+    record pairs-opts {
+        key: option<list<u8>>,
+        iterator: option<iterator-type>,
+        after: option<s64>,
+    }
 
-        enum log-level {
-                s-fatal,
-                s-syserror,
-                s-error,
-                s-crit,
-                s-warn,
-                s-info,
-                s-verbose,
-                s-debug,
-                say-level-max,
-        }
+    record update-op {
+        field-no: u32,
+        op: string,
+        operand: list<u8>,
+    }
 
-        enum tuple-field-type {
-                any,
-                unsigned,
-                %string,
-                number,
-                double,
-                integer,
-                boolean,
-                varbinary,
-                scalar,
-                decimal,
-                uuid,
-                datetime,
-                interval,
-                array,
-                map,
-                int8,
-                uint8,
-                int16,
-                uint16,
-                int32,
-                uint32,
-                int64,
-                uint64,
-                float32,
-                float64,
-                field-type-max,
-        }
+    record index-stat {
+        bsize: s64,
+        len: s64,
+    }
 
-        enum txn-isolation-level {
-                /** take isolation level from global default_isolation_level. */
-                txn-isolation-default,
-                /** allow to read committed, but not confirmed changes. */
-                txn-isolation-read-committed,
-                /** allow to read only confirmed changes. */
-                txn-isolation-read-confirmed,
-                /** determine isolation level automatically. */
-                txn-isolation-best-effort,
-                /** allow to read only the changes confirmed on any cluster node. */
-                txn-isolation-linearizable,
-                /** upper bound of valid values. */
-                txn-isolation-level-max,
-        }
+    type box-tuple = u64;
+    type tuple-field = u64;
+    type tuple-format = u64;
+    type tuple-list = list<box-tuple>;
 
-        type key-def = u64;
+    type key-def = u64;
+    type key-def-list = list<key-def>;
+    type key-part-def-list = list<key-part-def>;
 
-        type %tuple = u64;
+    type storage = list<tuple<string, string>>;
 
-        type tuple-format = u64;
+    resource iterator {
+        new-iterator: static func(index: index, iterator-type: iterator-type, key: list<u8>) -> result<iterator, box-error>;
+        next: func() -> result<box-tuple, box-error>;
+    }
 
-        type tuple-field = u64;
-
-
-        /* Tuple iterator should be a resource. */
-
-        /** Result types. */
-        type buffer-result = result<list<u8>, box-error>;
-        type empty-result = result<_, box-error>;
-        type index-result = result<space, box-error>;
-        type iterator-result = result<iterator, box-error>;
-        type key-def-result = result<key-def, box-error>;
-        type key-part-def-list-result = result<list<key-part-def>, box-error>;
-        type s64-result = result<s64, box-error>;
-        type space-result = result<space, box-error>;
-        type tuple-field-result = result<tuple-field, box-error>;
-        type tuple-format-result = result<tuple-format, box-error>;
-        type tuple-iterator-result = result<tuple-iterator, box-error>;
-        type tuple-result = result<%tuple, box-error>;
-        type validate-key-result = result<tuple<bool, u32>, box-error>;
+    resource tuple-iterator {
+        new-tuple-iterator: static func(%tuple: box-tuple) -> result<tuple-iterator, box-error>;
+        position: func() -> u32;
+        rewind: func();
+        seek: func(pos: u32) -> result<tuple-field, box-error>;
+        next: func() -> result<tuple-field, box-error>;
+    }
 }

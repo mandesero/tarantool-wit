@@ -1,10 +1,24 @@
 interface session {
-        use types.{
-                session,
-                empty-result,
-        };
 
-        current: func() -> session;
-        push: func(session: session, data: list<u8>) -> empty-result;
-        iproto-send: func(session: session, header: list<u8>, body: list<u8>) -> empty-result;
+    use types.{
+        box-error,
+        session,
+        storage,
+        peer,
+    };
+
+    current: func() -> session;
+    push: func(session: session, data: list<u8>) -> result<_, box-error>;
+    iproto-send: func(session: session, header: list<u8>, body: list<u8>) -> result<_, box-error>;
+    id: func(session: session) -> result<s64, box-error>;
+    exists: func() -> result<bool, box-error>;
+    get-peer: func(session: session) -> result<peer, box-error>;
+    sync: func() -> result<s64, box-error>;
+    user: func() -> result<string, box-error>;
+    %type: func(session: session) -> result<string, box-error>;
+    su: func(session: session, user: string) -> result<_, box-error>;
+    uid: func(session: session) -> result<s64, box-error>;
+    euid: func(session: session) -> result<s64, box-error>;
+    get-storage: func(session: session) -> result<storage, box-error>;
+
 }

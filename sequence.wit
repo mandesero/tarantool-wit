@@ -1,12 +1,15 @@
 interface sequence {
-        use types.{
-                sequence,
-                s64-result,
-                empty-result,
-        };
+    use types.{
+            sequence,
+            box-error,
+            sequence-options,
+    };
 
-        next: func(seq: sequence) -> s64-result;
-        current: func(seq: sequence) -> s64-result;
-        set: func(seq: sequence, value: s64) -> empty-result;
-        reset: func(seq: sequence) -> empty-result;
+    next: func(seq: sequence) -> result<s64, box-error>;
+    current: func(seq: sequence) -> result<s64, box-error>;
+    set: func(seq: sequence, value: s64) -> result<_, box-error>;
+    reset: func(seq: sequence) -> result<_, box-error>;
+    create: func(name: string, opts: option<sequence-options>) -> result<sequence, box-error>;
+    alter: func(seq: sequence, opts: sequence-options) -> result<_, box-error>;
+    drop: func(seq: sequence) -> result<_, box-error>;
 }

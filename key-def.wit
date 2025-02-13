@@ -1,0 +1,24 @@
+interface key-def {
+
+    use types.{
+        box-error,
+        box-tuple,
+        key-def,
+        key-part-def-list,
+    };
+
+    new: func(parts: key-part-def-list) -> result<key-def, box-error>;
+    merge: func(left: key-def, right: key-def) -> result<key-def, box-error>;
+    validate-key: func(key-def: key-def, key: list<u8>) -> result<tuple<bool, u32>, box-error>;
+    validate-full-key: func(key-def: key-def, key: list<u8>) -> result<tuple<bool, u32>, box-error>;
+    compare: func(key-def: key-def, left: box-tuple, right: box-tuple) -> s32;
+    compare-keys: func(key-def: key-def, left: key-def, right: key-def) -> s32;
+    extract-key: func(key-def: key-def, %tuple: box-tuple) -> box-tuple;
+    part-count: func(key-def: key-def) -> result<u32, box-error>;
+    validate-tuple: func(key-def: key-def, %tuple: box-tuple) -> bool;
+
+    dup: func(key-def: key-def) -> result<key-def, box-error>;
+    delete: func(key-def: key-def);
+    dump-parts: func(key-def: key-def) -> result<key-part-def-list, box-error>;
+
+}

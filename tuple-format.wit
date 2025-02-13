@@ -1,0 +1,14 @@
+interface tuple-format {
+
+    use types.{
+        key-def-list,
+        box-error,
+        tuple-format
+    };
+
+    default: func() -> tuple-format;
+    new: func(key-defs: key-def-list) -> result<tuple-format, box-error>;
+    ref: func(tf: tuple-format);
+    unref: func(tf: tuple-format);
+
+}
