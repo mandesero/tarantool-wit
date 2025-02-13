@@ -1,14 +1,15 @@
 interface say {
-        use types.{
-                log-level,
-        };
 
-        say: func(level: log-level, msg: string);
-        say-error: func(msg: string);
-        say-crit: func(msg: string);
-        say-warn: func(msg: string);
-        say-info: func(msg: string);
-        say-verbose: func(msg: string);
-        say-debug: func(msg: string);
-        say-syserror: func(msg: string);
+    use types.{
+        log-level,
+    };
+
+    say: func(level: log-level, msg: string);
+    say-error: func(msg: string);
+    say-crit: func(msg: string);
+    say-warn: func(msg: string);
+    say-info: func(msg: string);
+    say-verbose: func(msg: string);
+    say-debug: func(msg: string);
+    say-syserror: func(msg: string);
 }

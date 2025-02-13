@@ -44,7 +44,19 @@ there is no generally useful underlying primitive to extract (like
 `index_id`, for example), so we just wrap this reference into a nicely
 named type.
 
-## Generating bindings
+## Requirements for generating bindings
+
+### 1. Install `componentize-py`
+
+```sh
+sudo pip install componentize-py
+```
+
+### 2. Install `wit-bindgen`
+Download the latest release of `wit-bindgen` from the official GitHub repository [WIT Bindgen Releases](https://github.com/bytecodealliance/wit-bindgen/releases)
+
+## Generating Bindings
+
 ```sh
 $ componentize-py --wit-path /path/to/repo --world tarantool bindings /output/dir
 $ wit-bindgen c-sharp --runtime native-aot /path/to/repo

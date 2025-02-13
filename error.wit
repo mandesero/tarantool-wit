@@ -1,8 +1,13 @@
 interface error {
-        use types.{box-error};
 
-        last: func() -> option<box-error>;
-        clear: func();
-        set: func(err: box-error);
-        to-string: func(err: box-error) -> string;
+    use types.{
+        box-error,
+    };
+
+    new: func(message: string, %type: string, code: u32) -> box-error;
+    set: func(err: box-error);
+    last: func() -> option<box-error>;
+    clear: func();
+    to-string: func(err: box-error) -> string;
+
 }
