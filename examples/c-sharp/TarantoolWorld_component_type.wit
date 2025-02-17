@@ -1,0 +1,406 @@
+package tarantool:tarantool;
+
+interface types {
+  enum log-level {
+    s-fatal,
+    s-syserror,
+    s-error,
+    s-crit,
+    s-warn,
+    s-info,
+    s-verbose,
+    s-debug,
+  }
+
+  enum iterator-type {
+    iter-eq,
+    iter-req,
+    iter-all,
+    iter-lt,
+    iter-le,
+    iter-ge,
+    iter-gt,
+    iter-bits-all-set,
+    iter-bits-any-set,
+    iter-bits-all-not-set,
+    iter-overlaps,
+    iter-neighbor,
+    iter-np,
+    iter-pp,
+  }
+
+  enum txn-isolation-level {
+    txn-isolation-default,
+    txn-isolation-read-committed,
+    txn-isolation-read-confirmed,
+    txn-isolation-best-effort,
+    txn-isolation-linearizable,
+  }
+
+  enum index-type {
+    tree,
+    hash,
+    bitset,
+    rtree,
+  }
+
+  flags key-part-flags {
+    is-nullable,
+    exclude-null,
+  }
+
+  variant field-identifier {
+    number(u32),
+    name(string),
+  }
+
+  record key-part-def {
+    field: field-identifier,
+    field-type: string,
+    collation: option<string>,
+    path: option<string>,
+    %flags: key-part-flags,
+  }
+
+  record box-error {
+    message: string,
+    %type: string,
+    code: u32,
+    payload: option<list<tuple<string, string>>>,
+    file: option<string>,
+    line: option<u32>,
+  }
+
+  record index {
+    id: s32,
+    space-id: s32,
+    index-base: s32,
+  }
+
+  record sequence {
+    id: s32,
+  }
+
+  record space {
+    id: s32,
+  }
+
+  record sequence-options {
+    start: s64,
+    increment: s64,
+    min: s64,
+    max: s64,
+    cycle: bool,
+  }
+
+  record peer {
+    host: string,
+    port: u32,
+  }
+
+  record session {
+    id: s64,
+  }
+
+  record select-opts {
+    iterator: option<iterator-type>,
+    limit: option<u32>,
+    offset: option<u32>,
+    after: option<s64>,
+    fetch-pos: option<bool>,
+  }
+
+  record pairs-opts {
+    key: option<list<u8>>,
+    iterator: option<iterator-type>,
+    after: option<s64>,
+  }
+
+  record update-op {
+    field-no: u32,
+    op: string,
+    operand: list<u8>,
+  }
+
+  record index-stat {
+    bsize: s64,
+    len: s64,
+  }
+
+  type box-tuple = u64;
+
+  type tuple-field = u64;
+
+  type tuple-format = u64;
+
+  type tuple-list = list<box-tuple>;
+
+  type key-def = u64;
+
+  type key-def-list = list<key-def>;
+
+  type key-part-def-list = list<key-part-def>;
+
+  type storage = list<tuple<string, string>>;
+
+  resource iterator {
+    new-iterator: static func(index: index, iterator-type: iterator-type, key: list<u8>) -> result<iterator, box-error>;
+    next: func() -> result<box-tuple, box-error>;
+  }
+
+  resource tuple-iterator {
+    new-tuple-iterator: static func(%tuple: box-tuple) -> result<tuple-iterator, box-error>;
+    position: func() -> u32;
+    rewind: func();
+    seek: func(pos: u32) -> result<tuple-field, box-error>;
+    next: func() -> result<tuple-field, box-error>;
+  }
+}
+
+interface key-def {
+  use types.{box-error, box-tuple, key-def, key-part-def-list};
+
+  new: func(parts: key-part-def-list) -> result<key-def, box-error>;
+
+  merge: func(left: key-def, right: key-def) -> result<key-def, box-error>;
+
+  validate-key: func(key-def: key-def, key: list<u8>) -> result<tuple<bool, u32>, box-error>;
+
+  validate-full-key: func(key-def: key-def, key: list<u8>) -> result<tuple<bool, u32>, box-error>;
+
+  compare: func(key-def: key-def, left: box-tuple, right: box-tuple) -> s32;
+
+  compare-keys: func(key-def: key-def, left: key-def, right: key-def) -> s32;
+
+  extract-key: func(key-def: key-def, %tuple: box-tuple) -> box-tuple;
+
+  part-count: func(key-def: key-def) -> result<u32, box-error>;
+
+  validate-tuple: func(key-def: key-def, %tuple: box-tuple) -> bool;
+
+  dup: func(key-def: key-def) -> result<key-def, box-error>;
+
+  delete: func(key-def: key-def);
+
+  dump-parts: func(key-def: key-def) -> result<key-part-def-list, box-error>;
+}
+
+interface tuple-format {
+  use types.{key-def-list, box-error, tuple-format};
+
+  default: func() -> tuple-format;
+
+  new: func(key-defs: key-def-list) -> result<tuple-format, box-error>;
+
+  ref: func(tf: tuple-format);
+
+  unref: func(tf: tuple-format);
+}
+
+interface %tuple {
+  use types.{box-error, box-tuple, tuple-field, tuple-format};
+
+  new: func(format: tuple-format, data: list<u8>) -> result<box-tuple, box-error>;
+
+  ref: func(t: box-tuple) -> s32;
+
+  unref: func(t: box-tuple);
+
+  field-count: func(t: box-tuple) -> u32;
+
+  bsize: func(t: box-tuple) -> u64;
+
+  to-buf: func(t: box-tuple) -> list<u8>;
+
+  format: func(t: box-tuple) -> tuple-format;
+
+  field: func(t: box-tuple, idx: u32) -> result<tuple-field, box-error>;
+
+  field-by-path: func(path: string, index-base: s32) -> result<tuple-field, box-error>;
+
+  update: func(t: box-tuple, expr: list<u8>) -> result<box-tuple, box-error>;
+
+  upsert: func(t: box-tuple, expr: list<u8>) -> result<box-tuple, box-error>;
+
+  validate: func(t: box-tuple, format: tuple-format) -> bool;
+}
+
+interface error {
+  use types.{box-error};
+
+  new: func(message: string, %type: string, code: u32) -> box-error;
+
+  set: func(err: box-error);
+
+  last: func() -> option<box-error>;
+
+  clear: func();
+
+  to-string: func(err: box-error) -> string;
+}
+
+interface say {
+  use types.{log-level};
+
+  say: func(level: log-level, msg: string);
+
+  say-error: func(msg: string);
+
+  say-crit: func(msg: string);
+
+  say-warn: func(msg: string);
+
+  say-info: func(msg: string);
+
+  say-verbose: func(msg: string);
+
+  say-debug: func(msg: string);
+
+  say-syserror: func(msg: string);
+}
+
+interface txn {
+  use types.{box-error, txn-isolation-level};
+
+  txn-id: func() -> s64;
+
+  txn-isolation: func() -> txn-isolation-level;
+
+  txn: func() -> bool;
+
+  begin: func() -> result<_, box-error>;
+
+  commit: func() -> result<_, box-error>;
+
+  rollback: func() -> result<_, box-error>;
+
+  txn-set-isolation: func(isolation: txn-isolation-level) -> result<_, box-error>;
+
+  txn-make-sync: func();
+}
+
+interface box {
+  use types.{space, index, box-error, box-tuple};
+
+  schema-version: func() -> s64;
+
+  space-by-name: func(name: string) -> result<space, box-error>;
+
+  index-by-name: func(name: string, index-base: s32) -> result<index, box-error>;
+
+  insert: func(space: space, tup: list<u8>) -> result<box-tuple, box-error>;
+
+  replace: func(space: space, tup: list<u8>) -> result<box-tuple, box-error>;
+
+  truncate: func(space: space) -> result<_, box-error>;
+
+  delete: func(index: index, key: list<u8>) -> result<box-tuple, box-error>;
+
+  update: func(index: index, key: list<u8>, ops: list<u8>) -> result<box-tuple, box-error>;
+
+  upsert: func(index: index, tup: list<u8>, ops: list<u8>) -> result<box-tuple, box-error>;
+}
+
+interface session {
+  use types.{box-error, session, storage, peer};
+
+  current: func() -> session;
+
+  iproto-send: func(session: session, header: list<u8>, body: list<u8>) -> result<_, box-error>;
+
+  id: func(session: session) -> result<s64, box-error>;
+
+  exists: func() -> result<bool, box-error>;
+
+  get-peer: func(session: session) -> result<peer, box-error>;
+
+  sync: func() -> result<s64, box-error>;
+
+  user: func() -> result<string, box-error>;
+
+  %type: func(session: session) -> result<string, box-error>;
+
+  su: func(session: session, user: string) -> result<_, box-error>;
+
+  uid: func(session: session) -> result<s64, box-error>;
+
+  euid: func(session: session) -> result<s64, box-error>;
+
+  get-storage: func(session: session) -> result<storage, box-error>;
+}
+
+interface sequence {
+  use types.{sequence, box-error, sequence-options};
+
+  next: func(seq: sequence) -> result<s64, box-error>;
+
+  current: func(seq: sequence) -> result<s64, box-error>;
+
+  set: func(seq: sequence, value: s64) -> result<_, box-error>;
+
+  reset: func(seq: sequence) -> result<_, box-error>;
+
+  create: func(name: string, opts: option<sequence-options>) -> result<sequence, box-error>;
+
+  alter: func(seq: sequence, opts: sequence-options) -> result<_, box-error>;
+
+  drop: func(seq: sequence) -> result<_, box-error>;
+}
+
+interface index {
+  use types.{index, box-error, box-tuple, iterator-type, key-part-def, key-part-def-list, update-op, tuple-list, index-type, iterator, index-stat, pairs-opts, select-opts};
+
+  len: func(index: index) -> result<s64, box-error>;
+
+  bsize: func(index: index) -> result<s64, box-error>;
+
+  random: func(index: index, rnd: u32) -> result<box-tuple, box-error>;
+
+  get: func(index: index, key: list<u8>) -> result<box-tuple, box-error>;
+
+  min: func(index: index, key: list<u8>) -> result<box-tuple, box-error>;
+
+  max: func(index: index, key: list<u8>) -> result<box-tuple, box-error>;
+
+  count: func(iter-type: iterator-type, key: list<u8>) -> result<s64, box-error>;
+
+  unique: func(index: index) -> result<bool, box-error>;
+
+  get-type: func(index: index) -> result<index-type, box-error>;
+
+  parts: func(index: index) -> result<key-part-def-list, box-error>;
+
+  pairs: func(index: index, opts: pairs-opts) -> result<iterator, box-error>;
+
+  select: func(index: index, key: list<u8>, opts: select-opts) -> result<list<box-tuple>, box-error>;
+
+  update: func(index: index, key: list<u8>, ops: list<update-op>) -> result<box-tuple, box-error>;
+
+  delete: func(index: index, key: list<u8>) -> result<box-tuple, box-error>;
+
+  alter: func(index: index, unique: bool, parts: list<key-part-def>) -> result<_, box-error>;
+
+  drop: func(index: index) -> result<_, box-error>;
+
+  rename: func(index: index, new-name: string) -> result<_, box-error>;
+
+  stat: func(index: index) -> result<index-stat, box-error>;
+
+  compact: func(index: index) -> result<_, box-error>;
+
+  tuple-pos: func(index: index, key: list<u8>) -> result<s64, box-error>;
+}
+
+world tarantool {
+  import types;
+  import key-def;
+  import tuple-format;
+  import %tuple;
+  import error;
+  import say;
+  import txn;
+  import box;
+  import session;
+  import sequence;
+  import index;
+}
