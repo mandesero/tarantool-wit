@@ -1,13 +1,153 @@
-package tarantool:tarantool;
+package docs:tarantool@0.1.0;
 
 world tarantool {
-        import types;
-        import box;
-        import error;
-        import index;
-        import say;
-        import sequence;
-        import session;
-        import %tuple;
-        import txn;
+  import types;
+  import msgpack;
+  import box;
+}
+
+interface types {
+
+    type msgpack-data = list<u8>;
+
+    record msgpack-error {
+        message: string,
+    }
+
+    record box-error {
+        message: string,                        // Human-readable message.
+        %type: string,                          // Error type: e.g., "ClientError", "SocketError".
+        code: u32,                              // IPROTO or internal error code.
+        file: option<string>,                   // File where error originated (if available).
+        line: option<u32>,                      // Line number in the source file.
+      }
+
+    type space-id = s32;
+    type index-id = s32;
+    
+}
+
+interface msgpack {
+
+    use types.{
+        msgpack-data,
+        msgpack-error,
+    };
+
+    // Encodes a JSON-like structure into MsgPack format.
+    // * `data` is a byte array containing a valid UTF-8 encoded JSON string.
+    encode: func(data: list<u8>) -> result<msgpack-data, msgpack-error>;
+
+    // Decodes a MsgPack-encoded byte array back into a JSON-like structure.
+    // * `data` is a byte array containing data encoded in MessagePack format.
+    decode: func(data: msgpack-data) -> result<list<u8>, msgpack-error>;
+}
+
+interface box {
+
+    use types.{
+        msgpack-data,
+        box-error,
+        space-id,
+        index-id,
+    };
+
+    resource space {
+        // unsafe fn tarantool::space::Space::from_id_unchecked(id: SpaceId) -> Space
+        // * ID must be a valid tarantool space id.
+        // * Only use this function with ids acquired from tarantool in some way, e.g. from lua code.
+        constructor(id: space-id);
+
+        // tarantool::space::Space::find(name: &str) -> Option<Space>
+        // Find space by name.
+        find: static func(name: string) -> result<space, box-error>;
+
+        // tarantool::space::Space::id(&self) -> SpaceId
+        // Get space ID.
+        id: func() -> space-id;
+
+        // tarantool::space::Space::index(&self, name: &str) -> Option<Index>
+        // Find index by name.
+        index: func(name: string) -> result<index, box-error>;
+
+        // tarantool::space::Space::insert<T>(&self, value: &T) -> Result<Tuple, Error>
+        // Insert a value into a space. Returns a new tuple.
+        // * `data` must represent a valid messagepack array
+        // * using unsafe tarantool::tuple::Tuple::from_slice(data: &[u8]) -> Tuple
+        // * to convert value: msgpack-data (=list<u8>) to value: &K
+        insert: func(value: msgpack-data) -> result<box-tuple, box-error>;
+
+        // tarantool::space::Space::replace<T>(&self, value: &T) -> Result<Tuple, Error>
+        // Insert a value into a space. If a tuple with the same primary key already exists, it is replaced with a new one.
+        // Returns a new tuple.
+        // * `data` must represent a valid messagepack array
+        // * using unsafe tarantool::tuple::Tuple::from_slice(data: &[u8]) -> Tuple
+        // * to convert value: msgpack-data (=list<u8>) to value: &K
+        replace: func(value: msgpack-data) -> result<box-tuple, box-error>;
+
+        // tarantool::space::Space::truncate(&self) -> Result<(), Error>
+        // Deletes all tuples.
+        truncate: func() -> result<_, box-error>;
+    }
+
+    // C API: uint64_t box_schema_version(void)
+    // Get the database schema version.
+    schema-version: func() -> s64;
+
+    // tarantool::space::Space::find(name: &str) -> Option<Space>
+    // Get space ID.
+    space-id-by-name: func(name: string) -> result<space-id, box-error>;
+
+    // unsafe tarantool::index::Index::from_ids_unchecked(space_id: SpaceId, index_id: IndexId) -> Index
+    // * IDs must be valid tarantool space/index id.
+    // * Only use this function with ids acquired from tarantool in some way, e.g. from lua code.
+    index-id-by-name: func(space-id: space-id, name: string) -> result<index-id, box-error>;
+
+    resource box-tuple {
+
+        // Create new tuple.
+        // * data must represent a valid messagepack array
+        // * using unsafe tarantool::tuple::Tuple::from_slice(data: &[u8]) -> Tuple
+        constructor(data: msgpack-data);
+
+        // tarantool::tuple::Tuple::to_vec(&self) -> Vec<u8>
+        // Get tuple contents as a vector of raw bytes.
+        // Returns tuple bytes in msgpack encoding.
+        to-vec: func() -> msgpack-data;
+    }
+
+    resource index {
+
+        // unsafe tarantool::index::Index::from_ids_unchecked(space_id: SpaceId, index_id: IndexId) -> Index
+        // * IDs must be valid tarantool space/index id.
+        // * Only use this function with ids acquired from tarantool in some way, e.g. from lua code.
+        constructor(space-id: space-id, index-id: index-id);
+
+        // tarantool::index::Index::id(&self) -> u32
+        // Return id of this index.
+        id: func() -> index-id;
+
+        // tarantool::index::Index::id(&self) -> u32
+        // Return the space id of this index.
+        space-id: func() -> space-id;
+
+        // tarantool::index::Index::delete<K>(&self, key: &K) -> Result<Option<Tuple>, Error>
+        // Delete a tuple identified by a key.
+        // * `key` must represent a valid messagepack array
+        // * using unsafe tarantool::tuple::Tuple::from_slice(data: &[u8]) -> Tuple
+        // * to convert key: msgpack-data (=list<u8>) to key: &K
+        delete: func(key: msgpack-data) -> result<box-tuple, box-error>;
+
+        // unsafe tarantool::index::Index::update_raw(&self, key: &[u8], ops: &[u8]) -> Result<Option<Tuple>, Error>
+        // Update a tuple.
+        // * `key` must represent a valid messagepack array
+        // * `ops` must be a slice of valid msgpack arrays.
+        update: func(key: msgpack-data, ops: msgpack-data) -> result<box-tuple, box-error>;
+
+        // unsafe tarantool::index::Index::upsert_raw(&self, value: &[u8], ops: &[u8]) -> Result<(), Error>
+        // Execute an UPSERT request. Will try to insert tuple. Update if already exists.
+        // * `value` must represent a valid messagepack array
+        // * `ops` must be a valid msgpack array of msgpack arrays.
+        upsert: func(value: msgpack-data, ops: msgpack-data) -> result<box-tuple, box-error>;
+    }
 }
