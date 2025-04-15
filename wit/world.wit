@@ -1,0 +1,29 @@
+package tarantool:tarantool@0.1.0;
+
+@since(version = 0.1.0)
+world imports {
+    @since(version = 0.1.0)
+    import types;
+    @since(version = 0.1.0)
+    import msgpack;
+    @since(version = 0.1.0)
+    import ttbox;
+    @since(version = 0.1.0)
+    import say;
+    @since(version = 0.1.0)
+    import error;
+    @since(version = 0.1.0)
+    import session;
+    @since(version = 0.1.0)
+    import txn;
+    @since(version = 0.1.0)
+    import index;
+    @since(version = 0.1.0)
+    import sequence;
+    @since(version = 0.1.0)
+    import key-def;
+    @since(version = 0.1.0)
+    import tuple-format;
+    @since(version = 0.1.0)
+    import %tuple;
+}

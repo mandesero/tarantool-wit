@@ -1,0 +1,104 @@
+interface index {
+
+    @since(version = 0.1.0)
+    use types.{index, box-error, box-tuple, iterator-type};
+  
+    /// Returns the number of tuples stored in the index.
+    ///
+    /// ### Parameters
+    /// - `index`: The index to query.
+    ///
+    /// ### Returns
+    /// - The number of tuples in the index, or a `box-error` on failure.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    len: func(index: index) -> result<s64, box-error>;
+  
+    /// Returns the memory size of the index in bytes.
+    ///
+    /// ### Parameters
+    /// - `index`: The index to inspect.
+    ///
+    /// ### Returns
+    /// - Size in bytes, or a `box-error`.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    bsize: func(index: index) -> result<s64, box-error>;
+  
+    /// Returns a random tuple from the index.
+    ///
+    /// ### Parameters
+    /// - `index`: The index to read from.
+    /// - `rnd`: A random seed value.
+    ///
+    /// ### Returns
+    /// - A random tuple or a `box-error`.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    random: func(index: index, rnd: u32) -> result<box-tuple, box-error>;
+  
+    /// Gets a tuple by key from the index.
+    ///
+    /// The key must be a MsgPack-encoded JSON array like `[1]`.
+    ///
+    /// ### Parameters
+    /// - `index`: The index to search.
+    /// - `key`: MsgPack-encoded key (as JSON UTF-8 string).
+    ///
+    /// ### Returns
+    /// - The found tuple or an error.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    get: func(index: index, key: list<u8>) -> result<box-tuple, box-error>;
+  
+    /// Finds the minimal tuple matching the given key.
+    ///
+    /// ### Parameters
+    /// - `index`: The index to search.
+    /// - `key`: MsgPack-encoded key.
+    ///
+    /// ### Returns
+    /// - The smallest matching tuple or an error.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    min: func(index: index, key: list<u8>) -> result<box-tuple, box-error>;
+  
+    /// Finds the maximal tuple matching the given key.
+    ///
+    /// ### Parameters
+    /// - `index`: The index to search.
+    /// - `key`: MsgPack-encoded key.
+    ///
+    /// ### Returns
+    /// - The largest matching tuple or an error.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    max: func(index: index, key: list<u8>) -> result<box-tuple, box-error>;
+  
+    /// Counts the number of tuples matching the given key and iterator type.
+    ///
+    /// ### Parameters
+    /// - `index`: Index to query.
+    /// - `iter-type`: One of `iterator-type` values.
+    /// - `key`: MsgPack-encoded key.
+    ///
+    /// ### Returns
+    /// - Count of matching tuples, or an error.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    count: func(index: index, iter-type: iterator-type, key: list<u8>) -> result<s64, box-error>;
+}

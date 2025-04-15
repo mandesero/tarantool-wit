@@ -1,0 +1,275 @@
+@since(version = 0.1.0)
+interface %tuple {
+  
+    @since(version = 0.1.0)
+    use types.{box-error, box-tuple, tuple-field, tuple-format, key-def};
+  
+    /// Creates a new tuple using the specified format and raw MsgPack data.
+    ///
+    /// The data must be a MsgPack-encoded array (e.g., `[1, "abc", {"x": 42}]`).
+    ///
+    /// ### Parameters
+    /// - `format`: A tuple format object.
+    /// - `data`: MsgPack-encoded data (e.g., via `msgpack.encode(json.dumps(...))`)
+    ///
+    /// ### Returns
+    /// - A new `box-tuple`, or `box-error`.
+    /// 
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    new: func(data: list<u8>) -> result<box-tuple, box-error>;
+  
+    /// Increases the reference count of the tuple.
+    ///
+    /// Call this if you want to store the tuple beyond the current function scope.
+    ///
+    /// ### Parameters
+    /// - `t`: The tuple to retain.
+    ///
+    /// ### Returns
+    /// - The new reference count as `s32`.
+    @since(version = 0.1.0)
+    ref: func(t: box-tuple) -> s32;
+  
+    /// Decreases the reference count of the tuple.
+    ///
+    /// If the count reaches zero, the tuple is freed.
+    ///
+    /// ### Parameters
+    /// - `t`: The tuple to release.
+    @since(version = 0.1.0)
+    unref: func(t: box-tuple);
+  
+    /// Returns the number of fields in the tuple (i.e., array size).
+    ///
+    /// ### Parameters
+    /// - `t`: The tuple.
+    ///
+    /// ### Returns
+    /// - Field count as `u32`.
+    @since(version = 0.1.0)
+    field-count: func(t: box-tuple) -> u32;
+  
+    /// Returns the byte size of the internal MsgPack data.
+    ///
+    /// Useful for buffer allocations.
+    ///
+    /// ### Parameters
+    /// - `t`: The tuple.
+    ///
+    /// ### Returns
+    /// - Number of bytes used as `u64`.
+    @since(version = 0.1.0)
+    bsize: func(t: box-tuple) -> u64;
+  
+    /// Serializes the tuple back to MsgPack byte array.
+    ///
+    /// This data can be passed to `decode` or reused elsewhere.
+    ///
+    /// ### Parameters
+    /// - `t`: The tuple.
+    ///
+    /// ### Returns
+    /// - A MsgPack-encoded byte array, or `box-error`.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    to-buf: func(t: box-tuple) -> result<list<u8>, box-error>;
+  
+    /// Returns the format object associated with the tuple.
+    ///
+    /// ### Parameters
+    /// - `t`: The tuple.
+    ///
+    /// ### Returns
+    /// - The `tuple-format` used to construct the tuple.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    format: func(t: box-tuple) -> tuple-format;
+  
+    /// Returns a pointer to the field at the specified index (zero-based).
+    ///
+    /// The returned value is a pointer to raw MsgPack-encoded data and must be decoded.
+    ///
+    /// ### Parameters
+    /// - `t`: The tuple.
+    /// - `idx`: Field index (starting from 0).
+    ///
+    /// ### Returns
+    /// - `tuple-field` (pointer), or `box-error`.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    field: func(t: box-tuple, idx: u32) -> result<tuple-field, box-error>;
+  
+    /// Returns a pointer to the field by JSON path expression.
+    ///
+    /// Index base:
+    /// - 0 → C-style (zero-based)
+    /// - 1 → Lua-style (one-based)
+    ///
+    /// ### Parameters
+    /// - `t`: The tuple.
+    /// - `path`: Path expression (e.g., `"[2].x"`).
+    /// - `index-base`: Either 0 or 1.
+    ///
+    /// ### Returns
+    /// - `tuple-field` (pointer).
+    ///
+    /// ### Raises
+    /// - `box-error
+    /// 
+    /// ### Examples
+    ///
+    /// **Python**
+    /// ```
+    /// field = tt_tuple.field_by_path(tup, "[2].x", 1)
+    /// value = json.loads(msgpack.decode_from_raw_ptr(field).decode('utf-8'))
+    /// ```
+    @since(version = 0.1.0)
+    field-by-path: func(t: box-tuple, path: string, index-base: s32) -> result<tuple-field, box-error>;
+  
+    /// Updates fields in a tuple using the given update expression.
+    ///
+    /// The expression must be a MsgPack-encoded array of operations like:
+    /// `[["=", 1, "new_value"]]`, where the first item is an operation, second is field index, and third is the value.
+    ///
+    /// ### Parameters
+    /// - `t`: The tuple to update.
+    /// - `expr`: MsgPack-encoded update expression.
+    ///
+    /// ### Returns
+    /// - A new `box-tuple` with applied updates, or a `box-error`.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    update: func(t: box-tuple, expr: list<u8>) -> result<box-tuple, box-error>;
+  
+    /// Performs an upsert operation on the tuple using the provided expression.
+    ///
+    /// This operation applies updates if the field exists or appends otherwise.
+    /// Common upsert usage includes incrementing fields: `[["+", 2, 1]]`.
+    ///
+    /// ### Parameters
+    /// - `t`: The tuple.
+    /// - `expr`: MsgPack-encoded upsert expression.
+    ///
+    /// ### Returns
+    /// - A new `box-tuple` with result, or a `box-error`.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    upsert: func(t: box-tuple, expr: list<u8>) -> result<box-tuple, box-error>;
+  
+    /// Validates a tuple against the given format.
+    ///
+    /// Checks field types and nullability constraints.
+    ///
+    /// ### Parameters
+    /// - `t`: The tuple to validate.
+    /// - `format`: Tuple format to validate against.
+    ///
+    /// ### Returns
+    /// - `true` if valid, `false` otherwise.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    validate: func(t: box-tuple, format: tuple-format) -> bool;
+  
+    /// Compares two tuples using a given key definition.
+    ///
+    /// The comparison is lexicographical by key fields.
+    ///
+    /// ### Parameters
+    /// - `key-def`: Definition of fields to compare.
+    /// - `left`: First tuple.
+    /// - `right`: Second tuple.
+    /// 
+    /// ### Returns
+    /// - `0` if equal
+    /// - `<0` if `left < right`
+    /// - `>0` if `left > right`
+    @since(version = 0.1.0)
+    compare: func(key-def: key-def, left: box-tuple, right: box-tuple) -> s32;
+  
+    /// Compares a tuple with a key using the given key definition.
+    ///
+    /// ### Parameters
+    /// - `tuple`: Tuple to compare.
+    /// - `key`: MsgPack-encoded key (e.g., `[1]`)
+    /// - `key-def`: Key definition.
+    ///
+    /// ### Returns
+    /// - `0` if key matches tuple
+    /// - `<0` if tuple < key
+    /// - `>0` if tuple > key
+    @since(version = 0.1.0)
+    compare-with-key: func(%tuple: box-tuple, key: list<u8>, key-def: key-def) -> s32;
+  
+    @since(version = 0.1.0)
+    resource tuple-iterator {
+        /// Creates a new iterator over the fields of a tuple.
+        ///
+        /// This allows sequential or random access to MsgPack fields within the tuple.
+        ///
+        /// ### Parameters
+        /// - `tuple`: The tuple to iterate.
+        ///
+        /// ### Returns
+        /// - A new `tuple-iterator` object, or a `box-error`.
+        /// 
+        /// ### Raises
+        /// - `box-error
+        @since(version = 0.1.0)
+        new-tuple-iterator: static func(%tuple: box-tuple) -> result<tuple-iterator, box-error>;
+    
+        /// Returns the current iterator position (index of the next field).
+        ///
+        /// ### Returns
+        /// - The next field index (zero-based).
+        @since(version = 0.1.0)
+        position: func() -> u32;
+    
+        /// Rewinds the iterator to the beginning of the tuple.
+        ///
+        /// After this call, the next field will be the first.
+        @since(version = 0.1.0)
+        rewind: func();
+    
+        /// Seeks to a given field index in the tuple.
+        ///
+        /// The next call to `next()` will return this field.
+        ///
+        /// ### Parameters
+        /// - `pos`: Zero-based field index to seek to.
+        ///
+        /// ### Returns
+        /// - `tuple-field` pointer.
+        ///
+        /// ### Raises
+        /// - `box-error
+        @since(version = 0.1.0)
+        seek: func(pos: u32) -> result<tuple-field, box-error>;
+    
+        /// Returns the next field in the tuple.
+        ///
+        /// Returns `null` if there are no more fields.
+        ///
+        /// ### Returns
+        /// - `tuple-field` pointer.
+        ///
+        /// ### Raises
+        /// - `box-error
+        @since(version = 0.1.0)
+        next: func() -> result<tuple-field, box-error>;
+    }  
+}
+  

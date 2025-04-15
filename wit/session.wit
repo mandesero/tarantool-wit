@@ -1,0 +1,49 @@
+@since(version = 0.1.0)
+interface session {
+
+    @since(version = 0.1.0)
+    use types.{session, box-error};
+  
+    /// Returns the current session.
+    ///
+    /// The session object uniquely identifies the connection or context
+    /// (e.g. a client connection) from which the current code is executed.
+    ///
+    /// ### Returns
+    /// - A `session` object representing the current session.
+    @since(version = 0.1.0)
+    current: func() -> session;
+  
+    /// Broadcasts a message to all watchers subscribed to the given key.
+    ///
+    /// The `value` is interpreted as a string representation of a Lua object.
+    /// Internally maps to `box.broadcast(key, value)` from Lua.
+    ///
+    /// ### Parameters
+    /// - `key`: A string event name to broadcast on.
+    /// - `value`: A stringified Lua object, e.g. `"{a = 1}"`.
+    ///
+    /// ### Returns
+    /// - `ok` on success, or a `box-error` on failure.
+    @since(version = 0.1.0)
+    broadcast: func(key: string, value: string) -> result<_, box-error>;
+  
+    /// Sends a raw IPROTO packet to a specific session.
+    ///
+    /// Both the header and body must be valid MsgPack-encoded buffers.
+    ///
+    /// Internally maps to `box_iproto_send(...)` from the C API.
+    ///
+    /// ### Parameters
+    /// - `session`: Target session to send to.
+    /// - `header`: MsgPack-encoded map containing the request header.
+    /// - `body`: MsgPack-encoded body (optional but usually required).
+    ///
+    /// ### Returns
+    /// - `ok` on success
+    /// 
+    /// ### Raises
+    /// - `box-error`
+    @since(version = 0.1.0)
+    iproto-send: func(session: session, header: list<u8>, body: list<u8>) -> result<_, box-error>;
+}

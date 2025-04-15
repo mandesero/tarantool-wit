@@ -1,0 +1,113 @@
+@since(version = 0.1.0)
+interface ttbox {
+
+    @since(version = 0.1.0)
+    use types.{space, box-error, index, box-tuple};
+  
+    /// Returns the current schema version of the database.
+    ///
+    /// The schema version increases whenever the schema changes, such as creating or dropping spaces or indexes.
+    ///
+    /// ### Returns
+    /// - A 64-bit integer representing the current schema version.
+    @since(version = 0.1.0)
+    schema-version: func() -> s64;
+  
+    /// Retrieves a space object by its name.
+    ///
+    /// This function performs a lookup for a space by name and returns a reference used in subsequent operations.
+    ///
+    /// ### Parameters
+    /// - `name`: The name of the space to retrieve.
+    ///
+    /// ### Returns
+    /// - A space object if found, or an error otherwise.
+    @since(version = 0.1.0)
+    space-by-name: func(name: string) -> result<space, box-error>;
+  
+    /// Retrieves an index object by name within a space.
+    ///
+    /// This function looks up the specified index in the given space and returns a reference to it.
+    ///
+    /// ### Parameters
+    /// - `space`: The space to search within.
+    /// - `name`: The name of the index to retrieve.
+    ///
+    /// ### Returns
+    /// - An index object if found, or an error otherwise.
+    @since(version = 0.1.0)
+    index-by-name: func(%space: space, name: string) -> result<index, box-error>;
+  
+    /// Inserts a new tuple into a space.
+    ///
+    /// The tuple must be provided as a MsgPack-encoded array: `[field1, field2, ...]`.
+    ///
+    /// ### Parameters
+    /// - `space`: The target space.
+    /// - `tup`: A MsgPack-encoded array representing the tuple.
+    ///
+    /// ### Returns
+    /// - The inserted tuple.
+    @since(version = 0.1.0)
+    insert: func(space: space, tup: list<u8>) -> result<box-tuple, box-error>;
+  
+    /// Updates an existing tuple by key in the specified index.
+    ///
+    /// - `key` must be a MsgPack array identifying the tuple, e.g. `[1]`
+    /// - `ops` must be a MsgPack array of operations, e.g. `[[ "=", 2, 30 ]]`
+    ///
+    /// ### Parameters
+    /// - `index`: The index to use for locating the tuple.
+    /// - `key`: MsgPack-encoded key array.
+    /// - `ops`: MsgPack-encoded array of update operations.
+    ///
+    /// ### Returns
+    /// - The updated tuple.
+    @since(version = 0.1.0)
+    update: func(index: index, key: list<u8>, ops: list<u8>) -> result<box-tuple, box-error>;
+  
+    /// Replaces an existing tuple or inserts a new one.
+    ///
+    /// ### Parameters
+    /// - `space`: The space to operate on.
+    /// - `tup`: A MsgPack-encoded array representing the new tuple.
+    ///
+    /// ### Returns
+    /// - The replaced tuple.
+    @since(version = 0.1.0)
+    replace: func(space: space, tup: list<u8>) -> result<box-tuple, box-error>;
+  
+    /// Performs an UPSERT operation: update if exists, insert otherwise.
+    ///
+    /// ### Parameters
+    /// - `index`: The index used for key lookup.
+    /// - `tup`: A MsgPack-encoded tuple to insert.
+    /// - `ops`: A MsgPack-encoded array of update operations.
+    @since(version = 0.1.0)
+    upsert: func(index: index, tup: list<u8>, ops: list<u8>) -> result<_, box-error>;
+  
+    /// Deletes a tuple by key from the specified index.
+    ///
+    /// The key must be encoded as a MsgPack array, e.g. `[1]`.
+    ///
+    /// ### Parameters
+    /// - `index`: The index used for key lookup.
+    /// - `key`: MsgPack-encoded key array.
+    ///
+    /// ### Returns
+    /// - The deleted tuple, if found.
+    @since(version = 0.1.0)
+    delete: func(index: index, key: list<u8>) -> result<box-tuple, box-error>;
+  
+    /// Removes all tuples from the space.
+    ///
+    /// This operation is equivalent to SQL's `TRUNCATE TABLE`.
+    ///
+    /// ### Parameters
+    /// - `space`: The target space to truncate.
+    ///
+    /// ### Returns
+    /// - `null` on success, or an error.
+    @since(version = 0.1.0)
+    truncate: func(space: space) -> result<_, box-error>;
+}

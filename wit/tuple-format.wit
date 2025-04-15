@@ -1,0 +1,62 @@
+@since(version = 0.1.0)
+interface tuple-format {
+    
+    @since(version = 0.1.0)
+    use types.{key-def, box-error, tuple-format};
+  
+    /// Returns the default tuple format.
+    ///
+    /// This format is used to create tuples not bound to any specific space.
+    ///
+    /// ### Returns
+    /// - A `tuple-format` object.
+    @since(version = 0.1.0)
+    default: func() -> tuple-format;
+  
+    /// Creates a new tuple format based on a list of key definitions.
+    ///
+    /// Key definitions define constraints and structure (field types, paths, etc.).
+    ///
+    /// ### Parameters
+    /// - `key-defs`: A list of key definitions that describe indexable parts.
+    ///
+    /// ### Returns
+    /// - A `tuple-format` object.
+    /// 
+    /// ### Raises
+    /// - `box-error
+    ///
+    /// ### Examples
+    ///
+    /// **Python**
+    /// ```
+    /// parts = [
+    ///     KeyPart(field_no=0, field_type="unsigned", collation=None, path=None,
+    ///             flags=KeyPartFlags.IS_NULLABLE),
+    ///     KeyPart(field_no=1, field_type="string", collation=None, path=None,
+    ///             flags=KeyPartFlags.EXCLUDE_NULL)
+    /// ]
+    /// kd = key_def.new(parts)
+    /// tf = tuple_format.new([kd])
+    /// ```
+    @since(version = 0.1.0)
+    new: func(key-defs: list<key-def>) -> result<tuple-format, box-error>;
+  
+    /// Increments the reference counter of the tuple format.
+    ///
+    /// You should call this if you plan to store the format and use it across calls or threads.
+    ///
+    /// ### Parameters
+    /// - `tf`: Tuple format to retain.
+    @since(version = 0.1.0)
+    ref: func(tf: tuple-format);
+  
+    /// Decrements the reference counter of the tuple format.
+    ///
+    /// Must be called to release the format if it was previously retained via `ref`.
+    ///
+    /// ### Parameters
+    /// - `tf`: Tuple format to release.
+    @since(version = 0.1.0)
+    unref: func(tf: tuple-format);
+}

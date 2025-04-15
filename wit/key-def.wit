@@ -1,0 +1,169 @@
+@since(version = 0.1.0)
+interface key-def {
+  
+    @since(version = 0.1.0)
+    use types.{box-error, box-tuple, key-def, key-part};
+  
+    /// Creates a new key definition from a list of parts.
+    ///
+    /// Each key part defines one field to be used in a key for indexing or validation.
+    /// The `KeyPart` structure includes field number, type, optional collation, path, and flags.
+    ///
+    /// ### Parameters
+    /// - `parts`: List of `key-part` objects.
+    ///
+    /// ### Returns
+    /// - A new `key-def` object on success.
+    ///
+    /// ### Raises
+    /// - `box-error
+    ///
+    /// **Python**
+    /// ```
+    /// parts = [
+    ///     KeyPart(field_no=0, field_type="unsigned", collation=None, path=None,
+    ///             flags=KeyPartFlags.IS_NULLABLE),
+    ///     KeyPart(field_no=1, field_type="string", collation="unicode", path=None,
+    ///             flags=KeyPartFlags.EXCLUDE_NULL)
+    /// ]
+    /// kd = key_def.new(parts)
+    /// ```
+    @since(version = 0.1.0)
+    new: func(parts: list<key-part>) -> result<key-def, box-error>;
+  
+    /// Creates a deep copy of the given key definition.
+    ///
+    /// The returned `key-def` is independent of the original and must be deleted manually.
+    ///
+    /// ### Parameters
+    /// - `key-def`: The key definition to duplicate.
+    ///
+    /// ### Returns
+    /// - A duplicated `key-def`.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    dup: func(key-def: key-def) -> result<key-def, box-error>;
+  
+    /// Merges two key definitions into one.
+    ///
+    /// Fields from the right-hand side are appended if they are not duplicates of the left.
+    /// The resulting merged definition can be used for composite index construction.
+    ///
+    /// ### Parameters
+    /// - `left`: The base key definition.
+    /// - `right`: The key definition to append fields from.
+    ///
+    /// ### Returns
+    /// - A new merged `key-def`.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    merge: func(left: key-def, right: key-def) -> result<key-def, box-error>;
+  
+    /// Deletes a key definition, freeing any associated memory.
+    ///
+    /// You **must** call this for all key definitions you create with `new`, `dup`, or `merge`.
+    ///
+    /// ### Parameters
+    /// - `key-def`: The key definition to delete.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    delete: func(key-def: key-def);
+  
+    /// Returns a list of key parts from a given key definition.
+    ///
+    /// Useful for debugging and introspection — lets you inspect fields and their order.
+    ///
+    /// ### Parameters
+    /// - `key-def`: The key definition to inspect.
+    ///
+    /// ### Returns
+    /// - List of `key-part` objects.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    dump-parts: func(key-def: key-def) -> result<list<key-part>, box-error>;
+  
+    /// Validates whether a given key conforms to the key definition.
+    ///
+    /// Checks the number of fields and their types, allowing partial matches
+    /// (e.g. prefix of the full key).
+    ///
+    /// ### Parameters
+    /// - `key-def`: Key definition to validate against.
+    /// - `key`: MsgPack-encoded key (e.g., `[1, "abc"]`, encoded with `msgpack.encode(json.dumps(...))`)
+    ///
+    /// ### Returns
+    /// - A tuple `(is_valid: bool, size: u32)`
+    ///   - `is_valid`: Whether the key is valid.
+    ///   - `size`: Size of decoded key in bytes (if valid), or 0 if invalid.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    validate-key: func(key-def: key-def, key: list<u8>) -> result<tuple<bool, u32>, box-error>;
+  
+    /// Validates whether a key **fully** matches the key definition.
+    ///
+    /// Differs from `validate-key` by requiring exact number of parts.
+    ///
+    /// ### Parameters
+    /// - `key-def`: Key definition to validate against.
+    /// - `key`: MsgPack-encoded key (e.g., `[1, "abc"]`)
+    ///
+    /// ### Returns
+    /// - A tuple `(is_valid: bool, size: u32)` like in `validate-key`.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    validate-full-key: func(key-def: key-def, key: list<u8>) -> result<tuple<bool, u32>, box-error>;
+  
+    /// Returns the number of parts in the key definition.
+    ///
+    /// Each part corresponds to one field used in index comparison or validation.
+    ///
+    /// ### Parameters
+    /// - `key-def`: The key definition.
+    ///
+    /// ### Returns
+    /// - Number of parts as `u32`.
+    ///
+    /// ### Raises
+    /// - `box-error
+    @since(version = 0.1.0)
+    part-count: func(key-def: key-def) -> result<u32, box-error>;
+  
+    /// Extracts a key from a given tuple based on the key definition.
+    ///
+    /// The result is a `box-tuple` containing only the fields specified by the key definition.
+    ///
+    /// ### Parameters
+    /// - `key-def`: Key definition describing how to extract fields.
+    /// - `tuple`: Source `box-tuple`.
+    ///
+    /// ### Returns
+    /// - A new `box-tuple` with key fields only.
+    @since(version = 0.1.0)
+    extract-key: func(key-def: key-def, %tuple: box-tuple) -> box-tuple;
+  
+    /// Validates whether the tuple contains all required fields
+    /// and types as specified by the key definition.
+    ///
+    /// This is useful to check if a `box-tuple` is compatible with an index.
+    ///
+    /// ### Parameters
+    /// - `key-def`: Key definition to validate against.
+    /// - `tuple`: A `box-tuple` to validate.
+    ///
+    /// ### Returns
+    /// - `true` if the tuple satisfies the key definition, otherwise `false`.
+    @since(version = 0.1.0)
+    validate-tuple: func(key-def: key-def, %tuple: box-tuple) -> bool;
+}

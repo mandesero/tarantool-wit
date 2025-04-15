@@ -1,0 +1,102 @@
+@since(version = 0.1.0)
+interface types {
+
+    @since(version = 0.1.0)
+    record box-error {
+      message: string,                              // Human-readable message.
+      %type: string,                                // Error type: e.g., "ClientError", "SocketError".
+      code: u32,                                    // IPROTO or internal error code.
+      payload: option<list<tuple<string, string>>>, // Optional additional fields.
+      file: option<string>,                         // File where error originated (if available).
+      line: option<u32>,                            // Line number in the source file.
+    }
+  
+    @since(version = 0.1.0)
+    record space {
+      id: s32,                                      // Unique identifier of the space.
+    }
+  
+    @since(version = 0.1.0)
+    record index {
+      id: s32,                                      // Index ID (within space).
+      space-id: s32,                                // ID of the parent space.
+      index-base: s32,                              // 0 (C-style) or 1 (Lua-style) indexing.
+    }
+  
+    @since(version = 0.1.0)
+    enum log-level {
+      s-fatal,                                      // Critical failure, Tarantool exits
+      s-syserror,                                   // System error (errno-based)
+      s-error,                                      // Recoverable error
+      s-crit,                                       // Severe error
+      s-warn,                                       // Warning
+      s-info,                                       // Informational message
+      s-verbose,                                    // Verbose message
+      s-debug,                                      // Debug message
+    }
+  
+    @since(version = 0.1.0)
+    record session {
+      id: s64,                                      // Unique session identifier
+    }
+    
+    @since(version = 0.1.0)
+    enum txn-isolation-level {
+      txn-isolation-default,                        // take isolation level from global default_isolation_level.
+      txn-isolation-best-effort,                    // determine isolation level automatically (default).
+      txn-isolation-read-committed,                 // allow to read committed, but not confirmed changes.
+      txn-isolation-read-confirmed,                 // allow to read only confirmed changes.
+      txn-isolation-linearizable,                   // allow to read only the changes confirmed on any cluster node.
+    }
+  
+    @since(version = 0.1.0)
+    enum iterator-type {
+      iter-eq,                                      // Equal
+      iter-req,                                     // Reverse EQ
+      iter-all,                                     // Full scan
+      iter-lt, iter-le,                             // Less than / less equal
+      iter-ge, iter-gt,                             // Greater equal / greater than
+      iter-bits-all-set,                            // Bitmask: all bits set
+      iter-bits-any-set,                            // Bitmask: any bit set
+      iter-bits-all-not-set,                        // Bitmask: all not set
+      iter-overlaps,                                // Range overlaps
+      iter-neighbor,                                // Spatial index
+      iter-np, iter-pp                              // Spatial index variants
+    }
+  
+    @since(version = 0.1.0)
+    resource iterator {
+      new-iterator: static func(index: index, iterator-type: iterator-type, key: list<u8>) -> result<iterator, box-error>;
+      next: func() -> result<box-tuple, box-error>;
+    }
+  
+    @since(version = 0.1.0)
+    record sequence {
+      id: s32,                                      // Sequence ID
+    }
+    
+    @since(version = 0.1.0)
+    flags key-part-flags {
+      is-nullable,                                  // Allows NULL
+      exclude-null,                                 // Exclude NULLs in comparison
+    }
+  
+    @since(version = 0.1.0)
+    record key-part {
+      field-no: u32,                                // Index of field in tuple
+      field-type: string,                           // E.g. "unsigned", "string"
+      collation: option<string>,                    // Optional collation name
+      path: option<string>,                         // JSON path (for multikeys)
+      %flags: key-part-flags,                       // Nullable/exclude-null flags
+    }
+  
+    @since(version = 0.1.0)
+    type box-tuple = u64;
+    @since(version = 0.1.0)
+    type key-def = u64;
+    @since(version = 0.1.0)
+    type tuple-format = u64;
+    @since(version = 0.1.0)
+    type tuple-field = u64;
+}
+  

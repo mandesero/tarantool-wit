@@ -1,0 +1,53 @@
+
+@since(version = 0.1.0)
+interface error {
+
+    @since(version = 0.1.0)
+    use types.{box-error};
+  
+    /// Creates a new error object with the given message, type, and error code.
+    ///
+    /// ### Parameters
+    /// - `message`: The error message.
+    /// - `type`: The error type name.
+    /// - `code`: The numeric error code.
+    ///
+    /// ### Returns
+    /// - A new `box-error` object.
+    @since(version = 0.1.0)
+    error-new: func(message: string, %type: string, code: u32) -> box-error;
+  
+    /// Sets the given error as the current "last error".
+    ///
+    /// After calling this, `error.last()` will return the same error until cleared or overwritten.
+    ///
+    /// ### Parameters
+    /// - `err`: The error to set.
+    @since(version = 0.1.0)
+    set: func(err: box-error);
+  
+    /// Returns the last error set by the system or user code.
+    ///
+    /// Similar to `errno` in C. Returns `none` if no error is currently set.
+    ///
+    /// ### Returns
+    /// - `box-error` or `none` if no error is currently set.
+    @since(version = 0.1.0)
+    last: func() -> option<box-error>;
+  
+    /// Clears the last error.
+    ///
+    /// This is typically used to reset the error state before performing new operations.
+    @since(version = 0.1.0)
+    clear: func();
+  
+    /// Converts a `box-error` object to a string representation.
+    ///
+    /// ### Parameters
+    /// - `err`: The error to stringify.
+    ///
+    /// ### Returns
+    /// - A human-readable string describing the error.
+    @since(version = 0.1.0)
+    to-string: func(err: box-error) -> string;
+}
