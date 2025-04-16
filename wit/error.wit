@@ -15,7 +15,7 @@ interface error {
     /// ### Returns
     /// - A new `box-error` object.
     @since(version = 0.1.0)
-    error-new: func(message: string, %type: string, code: u32) -> box-error;
+    error-new: func(message: string, %type: string, code: u32, file: option<string>, line: option<u32>) -> box-error;
   
     /// Sets the given error as the current "last error".
     ///

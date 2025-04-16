@@ -22,6 +22,12 @@ interface types {
       space-id: s32,                                // ID of the parent space.
       index-base: s32,                              // 0 (C-style) or 1 (Lua-style) indexing.
     }
+
+    @since(version = 0.1.0)
+    record log-context {
+      filename: string,                             // The name of the source file where the log is generated.
+      line: u32,                                    // The line number in the source file where the log is generated.
+    }
   
     @since(version = 0.1.0)
     enum log-level {

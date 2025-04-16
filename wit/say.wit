@@ -2,7 +2,7 @@
 interface say {
 
     @since(version = 0.1.0)
-    use types.{log-level};
+    use types.{log-level, log-context};
   
     /// Logs a message with the given log level.
     ///
@@ -25,7 +25,7 @@ interface say {
     /// say('s-warn', "This is a warning message");
     /// ```
     @since(version = 0.1.0)
-    say: func(level: log-level, msg: string);
+    say: func(level: log-level, msg: string, ctx: option<log-context>);
   
     /// Logs an error message.
     ///
@@ -44,7 +44,7 @@ interface say {
     /// sayError("Something went wrong");
     /// ```
     @since(version = 0.1.0)
-    say-error: func(msg: string);
+    say-error: func(msg: string, ctx: option<log-context>);
   
     /// Logs a critical error message.
     ///
@@ -63,7 +63,7 @@ interface say {
     /// sayCrit("Unrecoverable condition encountered");
     /// ```
     @since(version = 0.1.0)
-    say-crit: func(msg: string);
+    say-crit: func(msg: string, ctx: option<log-context>);
   
     /// Logs a warning message.
     ///
@@ -82,7 +82,7 @@ interface say {
     /// sayWarn("This is just a warning");
     /// ```
     @since(version = 0.1.0)
-    say-warn: func(msg: string);
+    say-warn: func(msg: string, ctx: option<log-context>);
   
     /// Logs an informational message.
     ///
@@ -101,7 +101,7 @@ interface say {
     /// sayInfo("Processing started");
     /// ```
     @since(version = 0.1.0)
-    say-info: func(msg: string);
+    say-info: func(msg: string, ctx: option<log-context>);
   
     /// Logs a verbose message for detailed output.
     ///
@@ -120,7 +120,7 @@ interface say {
     /// sayVerbose("Detailed output");
     /// ```
     @since(version = 0.1.0)
-    say-verbose: func(msg: string);
+    say-verbose: func(msg: string, ctx: option<log-context>);
   
     /// Logs a debug message.
     ///
@@ -139,7 +139,7 @@ interface say {
     /// sayDebug("Debug info");
     /// ```
     @since(version = 0.1.0)
-    say-debug: func(msg: string);
+    say-debug: func(msg: string, ctx: option<log-context>);
   
     /// Logs a system-level error message (e.g. related to `errno`).
     ///
@@ -160,5 +160,5 @@ interface say {
     /// saySyserror("Failed to open file");
     /// ```
     @since(version = 0.1.0)
-    say-syserror: func(msg: string);
+    say-syserror: func(msg: string, ctx: option<log-context>);
 }
