@@ -25,5 +25,5 @@ world imports {
     @since(version = 0.1.0)
     import tuple-format;
     @since(version = 0.1.0)
-    import %tuple;
+    import box-tuple;
 }

@@ -1,5 +1,5 @@
 @since(version = 0.1.0)
-interface %tuple {
+interface box-tuple {
   
     @since(version = 0.1.0)
     use types.{box-error, box-tuple, tuple-field, tuple-format, key-def};
