@@ -1,108 +1,229 @@
 @since(version = 0.1.0)
 interface types {
 
-    @since(version = 0.1.0)
-    record box-error {
-      message: string,                              // Human-readable message.
-      %type: string,                                // Error type: e.g., "ClientError", "SocketError".
-      code: u32,                                    // IPROTO or internal error code.
-      payload: option<list<tuple<string, string>>>, // Optional additional fields.
-      file: option<string>,                         // File where error originated (if available).
-      line: option<u32>,                            // Line number in the source file.
-    }
-  
-    @since(version = 0.1.0)
-    record space {
-      id: s32,                                      // Unique identifier of the space.
-    }
-  
-    @since(version = 0.1.0)
-    record index {
-      id: s32,                                      // Index ID (within space).
-      space-id: s32,                                // ID of the parent space.
-      index-base: s32,                              // 0 (C-style) or 1 (Lua-style) indexing.
-    }
+  /// Represents an error returned by Tarantool operations.
+  ///
+  /// Contains a human-readable message, a type string (e.g., "ClientError",
+  /// "SocketError"), an error code, and optional payload, file, and line number
+  /// context.
+  @since(version = 0.1.0)
+  record box-error {
+    /// Human-readable error message.
+    message: string,
+    /// Error type, for example "ClientError" or "SocketError".
+    %type: string,
+    /// IPROTO or internal error code.
+    code: u32,
+    /// Optional additional fields as key-value pairs.
+    payload: option<list<tuple<string, string>>>,
+    /// Source file where the error originated (if available).
+    file: option<string>,
+    /// Line number in the source file where the error was raised.
+    line: option<u32>,
+  }
 
+  /// Identifies a Tarantool space by its numeric ID.
+  @since(version = 0.1.0)
+  record space {
+    /// Unique identifier of the space.
+    id: s32,
+  }
+
+  /// Identifies a Tarantool index, including its parent space and indexing style.
+  @since(version = 0.1.0)
+  record index {
+    /// Index ID within its parent space.
+    id: s32,
+    /// Numeric ID of the parent space.
+    space-id: s32,
+    /// Index base: 0 for C-style (0-based), 1 for Lua-style (1-based).
+    index-base: s32,
+  }
+
+  /// Context information for logging: file name and line number.
+  @since(version = 0.1.0)
+  record log-context {
+    /// Name of the source file generating the log.
+    filename: string,
+    /// Line number in the source file generating the log.
+    line: u32,
+  }
+
+  /// Defines the severity levels used in Tarantool logging.
+  ///
+  /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/say/#_CPPv49say_level
+  @since(version = 0.1.0)
+  enum log-level {
+    /// Critical failure; Tarantool will exit.
+    s-fatal,
+    /// System error based on errno.
+    s-syserror,
+    /// Recoverable error.
+    s-error,
+    /// Severe error.
+    s-crit,
+    /// Warning.
+    s-warn,
+    /// Informational message.
+    s-info,
+    /// Verbose message.
+    s-verbose,
+    /// Debug-level message.
+    s-debug,
+  }
+
+  /// Represents a client session in Tarantool by its ID.
+  @since(version = 0.1.0)
+  record session {
+    /// Unique session identifier.
+    id: s64,
+  }
+
+  /// Isolation levels available for Tarantool transactions.
+  @since(version = 0.1.0)
+  enum txn-isolation-level {
+    /// Use the global default_isolation_level.
+    txn-isolation-default,
+    /// Automatically determine the best isolation level (default).
+    txn-isolation-best-effort,
+    /// Read only committed, but not unconfirmed changes.
+    txn-isolation-read-committed,
+    /// Read only confirmed changes.
+    txn-isolation-read-confirmed,
+    /// Read only changes confirmed on any cluster node.
+    txn-isolation-linearizable,
+  }
+
+  /// Iterator types for index scans in Tarantool.
+  ///
+  /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/box_index/#_CPPv413iterator_type
+  @since(version = 0.1.0)
+  enum iterator-type {
+    /// Equal.
+    iter-eq,
+    /// Reverse equal.
+    iter-req,
+    /// Full scan (all tuples).
+    iter-all,
+    /// Less than.
+    iter-lt,
+    /// Less than or equal.
+    iter-le,
+    /// Greater than or equal.
+    iter-ge,
+    /// Greater than.
+    iter-gt,
+    /// Bitmask: all bits set.
+    iter-bits-all-set,
+    /// Bitmask: any bit set.
+    iter-bits-any-set,
+    /// Bitmask: all bits not set.
+    iter-bits-all-not-set,
+    /// Range overlaps.
+    iter-overlaps,
+    /// Spatial index neighbor.
+    iter-neighbor,
+    /// Spatial index nearest neighbor (NP).
+    iter-np,
+    /// Spatial index nearest neighbor (PP).
+    iter-pp,
+  }
+
+  /// Index iterator resource for scanning tuples.
+  @since(version = 0.1.0)
+  resource iterator {
+    /// Allocate and initialize an iterator for the given index.
+    ///
+    /// - `index`: the index to scan.
+    /// - `iterator-type`: type of scan (see `tarantool:tarantool/types::iterator-type`).
+    /// - `key`: primary key or composite key bytes to match (MsgPack).
+    ///
+    /// Returns either a new `iterator` or a `box-error`.
     @since(version = 0.1.0)
-    record log-context {
-      filename: string,                             // The name of the source file where the log is generated.
-      line: u32,                                    // The line number in the source file where the log is generated.
-    }
-  
+    new-iterator: static func(
+      index: index,
+      iterator-type: iterator-type,
+      key: list<u8>
+    ) -> result<iterator, box-error>;
+
+    /// Advance the iterator and return the next tuple.
+    ///
+    /// Returns either a `box-tuple` (pointer to MsgPack-encoded tuple) or a
+    /// `box-error` if an error occurred or no more tuples remain.
     @since(version = 0.1.0)
-    enum log-level {
-      s-fatal,                                      // Critical failure, Tarantool exits
-      s-syserror,                                   // System error (errno-based)
-      s-error,                                      // Recoverable error
-      s-crit,                                       // Severe error
-      s-warn,                                       // Warning
-      s-info,                                       // Informational message
-      s-verbose,                                    // Verbose message
-      s-debug,                                      // Debug message
-    }
-  
-    @since(version = 0.1.0)
-    record session {
-      id: s64,                                      // Unique session identifier
-    }
-    
-    @since(version = 0.1.0)
-    enum txn-isolation-level {
-      txn-isolation-default,                        // take isolation level from global default_isolation_level.
-      txn-isolation-best-effort,                    // determine isolation level automatically (default).
-      txn-isolation-read-committed,                 // allow to read committed, but not confirmed changes.
-      txn-isolation-read-confirmed,                 // allow to read only confirmed changes.
-      txn-isolation-linearizable,                   // allow to read only the changes confirmed on any cluster node.
-    }
-  
-    @since(version = 0.1.0)
-    enum iterator-type {
-      iter-eq,                                      // Equal
-      iter-req,                                     // Reverse EQ
-      iter-all,                                     // Full scan
-      iter-lt, iter-le,                             // Less than / less equal
-      iter-ge, iter-gt,                             // Greater equal / greater than
-      iter-bits-all-set,                            // Bitmask: all bits set
-      iter-bits-any-set,                            // Bitmask: any bit set
-      iter-bits-all-not-set,                        // Bitmask: all not set
-      iter-overlaps,                                // Range overlaps
-      iter-neighbor,                                // Spatial index
-      iter-np, iter-pp                              // Spatial index variants
-    }
-  
-    @since(version = 0.1.0)
-    resource iterator {
-      new-iterator: static func(index: index, iterator-type: iterator-type, key: list<u8>) -> result<iterator, box-error>;
-      next: func() -> result<box-tuple, box-error>;
-    }
-  
-    @since(version = 0.1.0)
-    record sequence {
-      id: s32,                                      // Sequence ID
-    }
-    
-    @since(version = 0.1.0)
-    flags key-part-flags {
-      is-nullable,                                  // Allows NULL
-      exclude-null,                                 // Exclude NULLs in comparison
-    }
-  
-    @since(version = 0.1.0)
-    record key-part {
-      field-no: u32,                                // Index of field in tuple
-      field-type: string,                           // E.g. "unsigned", "string"
-      collation: option<string>,                    // Optional collation name
-      path: option<string>,                         // JSON path (for multikeys)
-      %flags: key-part-flags,                       // Nullable/exclude-null flags
-    }
-  
-    @since(version = 0.1.0)
-    type box-tuple = u64;
-    @since(version = 0.1.0)
-    type key-def = u64;
-    @since(version = 0.1.0)
-    type tuple-format = u64;
-    @since(version = 0.1.0)
-    type tuple-field = u64;
+    next: func() -> result<box-tuple, box-error>;
+  }
+
+  /// A sequence is a generator of strictly increasing integer values in Tarantool.
+  ///
+  /// Sequence objects must be created in Tarantool before using WIT methods.
+  /// There is currently no C API to create a sequence object from WIT alone.
+  ///
+  /// See Tarantool documentation on sequences:
+  /// https://www.tarantool.io/ru/doc/latest/platform/ddl_dml/sequences/
+  ///
+  /// See GitHub issue for creating sequences from guest languages:
+  /// https://github.com/mandesero/tarantool-wit/issues/1
+  @since(version = 0.1.0)
+  record sequence {
+    /// Numeric identifier of the sequence in Tarantool.
+    id: s32,
+  }
+
+  /// Flags used to modify behavior of key parts in index definitions.
+  @since(version = 0.1.0)
+  flags key-part-flags {
+    /// Allows NULL values in this key part.
+    is-nullable,
+    /// Exclude NULL values when comparing key parts.
+    exclude-null,
+  }
+
+  /// Definition of a single key part in a Tarantool index.
+  @since(version = 0.1.0)
+  record key-part {
+    /// Field index in the tuple (0-based).
+    field-no: u32,
+    /// Field type as a string, e.g., "unsigned", "string".
+    field-type: string,
+    /// Optional collation name for string comparison.
+    collation: option<string>,
+    /// JSON path for multikey indexes (if applicable). If set, `field-type`
+    /// refers to the nested field type.
+    path: option<string>,
+    /// Nullable/exclude-null flags for this key part.
+    %flags: key-part-flags,
+  }
+
+  /// Opaque pointer to a Tarantool tuple (MsgPack-encoded).
+  ///
+  /// Corresponds to C type `box_tuple_t*`.
+  /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/tuple/#c.box_tuple_t
+  @since(version = 0.1.0)
+  type box-tuple = u64;
+
+  /// Opaque pointer to a Tarantool key definition.
+  ///
+  /// Corresponds to C type `box_key_def_t*`.
+  /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/tuple/#c.box_key_def_t
+  /// @since(version = 0.1.0)
+  type key-def = u64;
+
+  /// Opaque pointer to a Tarantool tuple format.
+  ///
+  /// Each `box-tuple` has an associated `tuple-format`. The default format
+  /// (see `tarantool:tarantool/tuple-format::default`) is used for tuples not
+  /// attached to any space.
+  ///
+  /// Corresponds to C type `box_tuple_format_t*`.
+  /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/tuple/#c.box_tuple_format_t
+  @since(version = 0.1.0)
+  type tuple-format = u64;
+
+  /// Opaque pointer to a raw tuple field (MsgPack-encoded).
+  ///
+  /// Corresponds to the C type `const char*` pointing to a field within a
+  /// MsgPack-encoded tuple.
+  @since(version = 0.1.0)
+  type tuple-field = u64;
 }
-  

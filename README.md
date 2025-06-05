@@ -44,6 +44,89 @@ there is no generally useful underlying primitive to extract (like
 `index_id`, for example), so we just wrap this reference into a nicely
 named type.
 
+## Adding Tarantool WIT Interfaces
+
+### Dependencies
+
+Make sure you have [wkg](https://github.com/bytecodealliance/wasm-pkg-tools) installed:
+
+```bash
+cargo install wkg
+```
+
+### 1. Manual (local) usage
+
+1. **Clone the `tarantool-wit` repository:**
+
+   ```bash
+   git clone https://github.com/mandesero/tarantool-wit.git
+   ```
+
+   You should now have a directory named `tarantool-wit/` containing a `wit/` subfolder
+   with all the Tarantool WIT files.
+
+2. **Create or edit `wkg.toml` in your own project to point at that local `wit/` folder:**
+
+   ```toml
+   [overrides]
+   "tarantool:tarantool" = { path = "<path-to>/tarantool-wit/wit" }
+   ```
+
+   Replace `<path-to>/tarantool-wit/wit` with the relative (or absolute) path
+   where you cloned `tarantool-wit/wit`.
+
+3. **Fetch the interface into your project:**
+
+   ```bash
+   wkg wit fetch
+   ```
+
+   After this command completes, you’ll see `wit/deps/tarantool/tarantool@<version>.wasm`
+   (and any other dependencies) checked out under `wit/deps/`.
+
+
+### 2. Fetching the published interface from GHCR
+
+1. **Edit your global (or per-project) `wkg` config** so that all `tarantool:tarantool`
+requests resolve to GHCR. Run:
+
+   ```bash
+   wkg config --edit
+   ```
+
+   This will open your `$WKG_CONFIG_FILE` (usually `~/.config/wasm-pkg/config.toml`) in your
+   default editor. Add the following section (or merge it with existing settings):
+
+   ```toml
+   [package_registry_overrides]
+   "tarantool:tarantool" = { registry = "ghcr.io", metadata = { preferredProtocol = "oci", oci = { registry = "ghcr.io", namespacePrefix = "mandesero/" } } }
+   ```
+
+2. **Run `wkg wit fetch` in your project:**
+
+   ```bash
+   wkg wit fetch
+   ```
+
+   Now any `include tarantool:tarantool@<version>` in your `wit/world.wit` will be pulled from
+   `ghcr.io/mandesero/tarantool/tarantool:<version>`, and placed under `wit/deps/` automatically.
+
+### Example `wit/world.wit`
+
+In your `wit/world.wit`, just reference the Tarantool sequence or other types as usual. For example:
+
+```wit
+package docs:adder@0.1.0;
+
+world my-world {
+  include tarantool:tarantool/types@0.1.0;
+  // other includes/exports
+}
+```
+
+With either the **manual override** (step 1) or the **registry override** (step 2), `wkg wit fetch` will
+pull in exactly that `tarantool:tarantool@0.1.0` interface.
+
 ## Generating bindings
 ```sh
 $ componentize-py --wit-path /path/to/repo --world tarantool bindings /output/dir
