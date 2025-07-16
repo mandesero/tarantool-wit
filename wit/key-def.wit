@@ -1,4 +1,4 @@
-@since(version = 0.1.0)
+@since(version = 0.1.1)
 interface key-def {
   
     @since(version = 0.1.0)
@@ -142,17 +142,25 @@ interface key-def {
   
     /// Extracts a key from a given tuple based on the key definition.
     ///
-    /// The result is a `box-tuple` containing only the fields specified by the key definition.
+    /// The result is a msgpack-encoded byte buffer representing the key,
+    /// constructed by selecting fields from the input tuple as defined
+    /// by the provided key definition.
+    ///
+    /// This buffer can be decoded using a msgpack decoder and will contain
+    /// an array of fields corresponding to the key parts.
     ///
     /// ### Parameters
     /// - `key-def`: Key definition describing how to extract fields.
     /// - `tuple`: Source `box-tuple`.
     ///
     /// ### Returns
-    /// - A new `box-tuple` with key fields only.
-    @since(version = 0.1.0)
-    extract-key: func(key-def: key-def, %tuple: box-tuple) -> box-tuple;
-  
+    /// - A list of bytes (msgpack-encoded array of key fields).
+    ///
+    /// ### Errors
+    /// - Returns a `box-error` if the tuple is invalid or extraction fails.
+    @since(version = 0.1.1)
+    extract-key: func(key-def: key-def, %tuple: box-tuple) -> result<list<u8>, box-error>;
+
     /// Validates whether the tuple contains all required fields
     /// and types as specified by the key definition.
     ///
