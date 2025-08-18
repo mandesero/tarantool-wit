@@ -1,9 +1,11 @@
 @since(version = 0.1.2)
 interface types {
 
-  /// Tarantool error codes (subset of ER_* constants)
-  /// Values correspond to `struct errcode_record.errcode` in the C API.
-  /// The numbers are fixed and compatible with box.error.code().
+  /// Tarantool error codes.
+  ///
+  /// Mirrors the `ER_*` constants (`enum errcode`) used by
+  /// [`box.error`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_error/).
+  /// Values match `struct errcode_record.errcode` in the C API.
   enum error-code {
       unknown,
       illegal-params,
@@ -424,7 +426,10 @@ interface types {
     exclude-null,
   }
 
-  /// Collation identifiers (ordinal matches Tarantool collation id).
+  /// Collation identifiers.
+  ///
+  /// Values correspond to IDs from Tarantool's `_collation` system space.
+  /// The numeric value matches the collation id used by the database.
   @since(version = 0.1.2)
   enum collation {
     none,                               // 0

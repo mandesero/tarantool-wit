@@ -2,6 +2,27 @@
 
 This repository contains WIT definition for Tarantool DBMS.
 
+## Interface overview
+
+Each WIT file in the `wit/` directory mirrors a Tarantool module or
+structure. The table below shows the correspondence between the WIT
+interfaces and Tarantool APIs.
+
+| WIT file | Tarantool interface |
+| -------- | ------------------- |
+| `box-tuple.wit` | [`box.tuple`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_tuple/) / `box_tuple_t` |
+| `error.wit` | [`box.error`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_error/) |
+| `index.wit` | [`box.index`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_index/) |
+| `key-def.wit` | `box.key_def` C API |
+| `msgpack.wit` | [`msgpack`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/msgpack/) module |
+| `sequence.wit` | [`box.sequence`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_sequence/) |
+| `session.wit` | [`box.session`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_session/) |
+| `say.wit` | [`log`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/log/) module / `say_*` macros |
+| `ttbox.wit` | General `box` helpers (`space:insert`, `index:update`, …) |
+| `tuple-format.wit` | [`box.tuple.format`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_tuple/#lua-function.box_tuple_format) |
+| `txn.wit` | [`box.txn`](https://www.tarantool.io/en/doc/latest/reference/reference_capi/txn/) |
+| `types.wit` | Common Tarantool types (`box_error_t`, `box_tuple_t`, …) |
+
 ## Architecture Decision Record
 
 Aside from enums, we opted to express every Tarantool type as either
@@ -119,13 +140,13 @@ In your `wit/world.wit`, just reference the Tarantool sequence or other types as
 package docs:adder@0.1.0;
 
 world my-world {
-  include tarantool:tarantool/types@0.1.0;
+  include tarantool:tarantool/types@0.1.2;
   // other includes/exports
 }
 ```
 
 With either the **manual override** (step 1) or the **registry override** (step 2), `wkg wit fetch` will
-pull in exactly that `tarantool:tarantool@0.1.0` interface.
+pull in exactly that `tarantool:tarantool@0.1.2` interface.
 
 ## Generating bindings
 ```sh
@@ -151,8 +172,6 @@ Options:
 
 ```
 
-
 ## Useful links
 [Introduction to component model.](https://component-model.bytecodealliance.org/introduction.html)
 [Resource table docs.](https://docs.rs/wasmtime/latest/wasmtime/component/struct.ResourceTable.html)
-
