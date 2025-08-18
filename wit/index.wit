@@ -1,3 +1,4 @@
+@since(version = 0.1.2)
 interface index {
 
     @since(version = 0.1.0)
@@ -101,4 +102,29 @@ interface index {
     /// - `box-error
     @since(version = 0.1.0)
     count: func(index: index, iter-type: iterator-type, key: list<u8>) -> result<s64, box-error>;
+
+    /// Index iterator resource for scanning tuples.
+    @since(version = 0.1.2)
+    resource index-iterator {
+        /// Allocate and initialize an iterator for the given index.
+        ///
+        /// - `index`: the index to scan.
+        /// - `iterator-type`: type of scan (see `tarantool:tarantool/types::iterator-type`).
+        /// - `key`: primary key or composite key bytes to match (MsgPack).
+        ///
+        /// Returns either a new `iterator` or a `box-error`.
+        @since(version = 0.1.2)
+        new-iterator: static func(
+            index: index,
+            iterator-type: iterator-type,
+            key: list<u8>
+        ) -> result<index-iterator, box-error>;
+
+        /// Advance the iterator and return the next tuple.
+        ///
+        /// Returns either a `box-tuple` (pointer to MsgPack-encoded tuple) or a
+        /// `box-error` if an error occurred or no more tuples remain.
+        @since(version = 0.1.2)
+        next: func() -> result<box-tuple, box-error>;
+    }
 }

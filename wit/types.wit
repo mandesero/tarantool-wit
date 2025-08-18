@@ -1,21 +1,291 @@
-@since(version = 0.1.0)
+@since(version = 0.1.2)
 interface types {
+
+  /// Tarantool error codes (subset of ER_* constants)
+  /// Values correspond to `struct errcode_record.errcode` in the C API.
+  /// The numbers are fixed and compatible with box.error.code().
+  enum error-code {
+      unknown,
+      illegal-params,
+      memory-issue,
+      tuple-found,
+      unsupported,
+      readonly,
+      injection,
+      create-space,
+      space-exists,
+      drop-space,
+      altspace,
+      index-type,
+      modify-index,
+      last-drop,
+      tuple-format-limit,
+      drop-primary-key,
+      key-part-type,
+      exact-match,
+      invalid-msgpack,
+      tuple-not-array,
+      field-type,
+      index-part-type-mismatch,
+      update-splice,
+      update-arg-type,
+      format-mismatch-index-part,
+      unknown-update-op,
+      update-field,
+      function-tx-active,
+      key-part-count,
+      proc-lua,
+      no-such-proc,
+      no-such-trigger,
+      no-such-index-id,
+      no-such-space,
+      no-such-field-no,
+      exact-field-count,
+      field-missing,
+      wal-io,
+      more-than-one-tuple,
+      access-denied,
+      create-user,
+      drop-user,
+      no-such-user,
+      usexists,
+      creds-mismatch,
+      unknown-request-type,
+      unknown-schema-object,
+      create-function,
+      no-such-function,
+      function-exists,
+      before-replace-ret,
+      multistatement-transaction,
+      triggexists,
+      usmax,
+      no-such-engine,
+      reload-cfg,
+      cfg,
+      savepoint-empty-tx,
+      no-such-savepoint,
+      unknown-replica,
+      replicaset-uuid-mismatch,
+      invalid-uuid,
+      replicaset-uuid-is-ro,
+      instance-uuid-mismatch,
+      replica-id-is-reserved,
+      missing-request-field,
+      identifier,
+      drop-function,
+      iterator-type,
+      replica-max,
+      no-connection,
+      timeout,
+      active-transaction,
+      cursor-no-transaction,
+      no-such-role,
+      role-exists,
+      create-role,
+      index-exists,
+      session-closed,
+      role-loop,
+      grant,
+      priv-granted,
+      role-granted,
+      priv-not-granted,
+      role-not-granted,
+      missing-snapshot,
+      cant-update-primary-key,
+      update-integoverflow,
+      guest-uspassword,
+      transaction-conflict,
+      unsupported-priv,
+      load-function,
+      function-language,
+      rtree-rect,
+      proc-c,
+      protocol,
+      wrong-index-record,
+      wrong-index-parts,
+      wrong-index-options,
+      wrong-schema-version,
+      memtx-max-tuple-size,
+      wrong-space-options,
+      unsupported-index-feature,
+      view-is-ro,
+      no-transaction,
+      system,
+      loading,
+      connection-to-self,
+      compression,
+      checkpoint-in-progress,
+      sub-stmt-max,
+      commit-in-sub-stmt,
+      rollback-in-sub-stmt,
+      decompression,
+      invalid-xlog-type,
+      already-running,
+      index-field-count-limit,
+      local-instance-id-is-read-only,
+      backup-in-progress,
+      read-view-aborted,
+      invalid-index-file,
+      invalid-run-file,
+      invalid-vylog-file,
+      cascade-rollback,
+      vy-quota-timeout,
+      partial-key,
+      truncate-system-space,
+      load-module,
+      vinyl-max-tuple-size,
+      wrong-dd-version,
+      wrong-space-format,
+      create-sequence,
+      altsequence,
+      drop-sequence,
+      no-such-sequence,
+      sequence-exists,
+      sequence-overflow,
+      no-such-index-name,
+      space-field-is-duplicate,
+      cant-create-collation,
+      wrong-collation-options,
+      nullable-primary,
+      no-such-field-name-in-space,
+      transaction-yield,
+      no-such-group,
+      sql-bind-type,
+      sql-bind-parametmax,
+      sql-execute,
+      update-decimal-overflow,
+      sql-bind-not-found,
+      action-mismatch,
+      view-missing-sql,
+      foreign-key-constraint,
+      no-such-module,
+      no-such-collation,
+      create-fk-constraint,
+      no-such-constraint,
+      constraint-exists,
+      sql-type-mismatch,
+      rowid-overflow,
+      drop-collation,
+      illegal-collation-mix,
+      sql-no-such-pragma,
+      sql-cant-resolve-field,
+      index-exists-in-space,
+      inconsistent-types,
+      sql-syntax-with-pos,
+      sql-stack-overflow,
+      sql-select-wildcard,
+      sql-statement-empty,
+      sql-keyword-is-reserved,
+      sql-syntax-near-token,
+      sql-unknown-token,
+      sql-parsgeneric,
+      sql-column-count-max,
+      hex-literal-max,
+      int-literal-max,
+      sql-parslimit,
+      index-def-unsupported,
+      multikey-index-mismatch,
+      create-ck-constraint,
+      sql-column-count,
+      func-index-func,
+      func-index-format,
+      func-index-parts,
+      no-such-field-name,
+      func-wrong-arg-count,
+      bootstrap-readonly,
+      sql-func-wrong-ret-count,
+      func-invalid-return-type,
+      sql-parsgeneric-with-pos,
+      replica-not-anon,
+      cannot-register,
+      session-setting-invalid-value,
+      sql-prepare,
+      wrong-query-id,
+      sequence-not-started,
+      no-such-session-setting,
+      uncommitted-foreign-sync-txns,
+      sync-quorum-timeout,
+      sync-rollback,
+      tuple-metadata-is-too-big,
+      xlog-gap,
+      too-early-subscribe,
+      sql-cant-add-autoinc,
+      quorum-wait,
+      interfering-promote,
+      election-disabled,
+      txn-rollback,
+      not-leader,
+      sync-queue-unclaimed,
+      sync-queue-foreign,
+      transaction-timeout,
+      active-timer,
+      tuple-field-count-limit,
+      create-constraint,
+      field-constraint-failed,
+      tuple-constraint-failed,
+      create-foreign-key,
+      foreign-key-integrity,
+      field-foreign-key-failed,
+      complex-foreign-key-failed,
+      wrong-space-upgrade-options,
+      no-election-quorum,
+      ssl,
+      split-brain,
+      old-term,
+      interfering-elections,
+      iterator-position,
+      default-value-type,
+      unknown-auth-method,
+      invalid-auth-data,
+      invalid-auth-request,
+      weak-password,
+      old-password,
+      no-such-session,
+      wrong-session-type,
+      password-expired,
+      auth-delay,
+      auth-required,
+      sql-seq-scan,
+      no-such-event,
+      bootstrap-not-unanimous,
+      cant-check-bootstrap-leader,
+      bootstrap-connection-not-to-all,
+      nil-uuid,
+      wrong-function-options,
+      missing-system-spaces,
+      clustname-mismatch,
+      replicaset-name-mismatch,
+      instance-name-duplicate,
+      instance-name-mismatch,
+      schema-needs-upgrade,
+      schema-upgrade-in-progress,
+      deprecated,
+      unconfigured,
+      create-default-func,
+      default-func-failed,
+      invalid-dec,
+      in-anothpromote,
+      shutdown,
+      field-value-out-of-range,
+      replicaset-not-found,
+      replicaset-no-writable,
+      replicaset-more-than-one-writable,
+      txn-commit
+  }
 
   /// Represents an error returned by Tarantool operations.
   ///
   /// Contains a human-readable message, a type string (e.g., "ClientError",
   /// "SocketError"), an error code, and optional payload, file, and line number
   /// context.
-  @since(version = 0.1.0)
+  @since(version = 0.1.2)
   record box-error {
+    /// IPROTO or internal error code.
+    code: error-code,
     /// Human-readable error message.
     message: string,
     /// Error type, for example "ClientError" or "SocketError".
-    %type: string,
-    /// IPROTO or internal error code.
-    code: u32,
-    /// Optional additional fields as key-value pairs.
-    payload: option<list<tuple<string, string>>>,
+    error-type: string,
     /// Source file where the error originated (if available).
     file: option<string>,
     /// Line number in the source file where the error was raised.
@@ -129,31 +399,6 @@ interface types {
     iter-pp,
   }
 
-  /// Index iterator resource for scanning tuples.
-  @since(version = 0.1.0)
-  resource iterator {
-    /// Allocate and initialize an iterator for the given index.
-    ///
-    /// - `index`: the index to scan.
-    /// - `iterator-type`: type of scan (see `tarantool:tarantool/types::iterator-type`).
-    /// - `key`: primary key or composite key bytes to match (MsgPack).
-    ///
-    /// Returns either a new `iterator` or a `box-error`.
-    @since(version = 0.1.0)
-    new-iterator: static func(
-      index: index,
-      iterator-type: iterator-type,
-      key: list<u8>
-    ) -> result<iterator, box-error>;
-
-    /// Advance the iterator and return the next tuple.
-    ///
-    /// Returns either a `box-tuple` (pointer to MsgPack-encoded tuple) or a
-    /// `box-error` if an error occurred or no more tuples remain.
-    @since(version = 0.1.0)
-    next: func() -> result<box-tuple, box-error>;
-  }
-
   /// A sequence is a generator of strictly increasing integer values in Tarantool.
   ///
   /// Sequence objects must be created in Tarantool before using WIT methods.
@@ -179,15 +424,315 @@ interface types {
     exclude-null,
   }
 
+  /// Collation identifiers (ordinal matches Tarantool collation id).
+  @since(version = 0.1.2)
+  enum collation {
+    none,                               // 0
+    unicode,                            // 1
+    unicode-ci,                         // 2
+    binary,                             // 3
+    unicode-af-s1,                      // 4
+    unicode-af-s2,                      // 5
+    unicode-af-s3,                      // 6
+    unicode-am-s1,                      // 7
+    unicode-am-s2,                      // 8
+    unicode-am-s3,                      // 9
+    unicode-ar-s1,                      // 10
+    unicode-ar-s2,                      // 11
+    unicode-ar-s3,                      // 12
+    unicode-as-s1,                      // 13
+    unicode-as-s2,                      // 14
+    unicode-as-s3,                      // 15
+    unicode-az-s1,                      // 16
+    unicode-az-s2,                      // 17
+    unicode-az-s3,                      // 18
+    unicode-be-s1,                      // 19
+    unicode-be-s2,                      // 20
+    unicode-be-s3,                      // 21
+    unicode-bn-s1,                      // 22
+    unicode-bn-s2,                      // 23
+    unicode-bn-s3,                      // 24
+    unicode-bs-s1,                      // 25
+    unicode-bs-s2,                      // 26
+    unicode-bs-s3,                      // 27
+    unicode-bs-cyrl-s1,                 // 28
+    unicode-bs-cyrl-s2,                 // 29
+    unicode-bs-cyrl-s3,                 // 30
+    unicode-ca-s1,                      // 31
+    unicode-ca-s2,                      // 32
+    unicode-ca-s3,                      // 33
+    unicode-cs-s1,                      // 34
+    unicode-cs-s2,                      // 35
+    unicode-cs-s3,                      // 36
+    unicode-cy-s1,                      // 37
+    unicode-cy-s2,                      // 38
+    unicode-cy-s3,                      // 39
+    unicode-da-s1,                      // 40
+    unicode-da-s2,                      // 41
+    unicode-da-s3,                      // 42
+    unicode-de-phonebook-s1,            // 43 (de__phonebook)
+    unicode-de-phonebook-s2,            // 44
+    unicode-de-phonebook-s3,            // 45
+    unicode-de-at-phonebook-s1,         // 46
+    unicode-de-at-phonebook-s2,         // 47
+    unicode-de-at-phonebook-s3,         // 48
+    unicode-dsb-s1,                     // 49
+    unicode-dsb-s2,                     // 50
+    unicode-dsb-s3,                     // 51
+    unicode-ee-s1,                      // 52
+    unicode-ee-s2,                      // 53
+    unicode-ee-s3,                      // 54
+    unicode-eo-s1,                      // 55
+    unicode-eo-s2,                      // 56
+    unicode-eo-s3,                      // 57
+    unicode-es-s1,                      // 58
+    unicode-es-s2,                      // 59
+    unicode-es-s3,                      // 60
+    unicode-es-traditional-s1,          // 61 (es__traditional)
+    unicode-es-traditional-s2,          // 62
+    unicode-es-traditional-s3,          // 63
+    unicode-et-s1,                      // 64
+    unicode-et-s2,                      // 65
+    unicode-et-s3,                      // 66
+    unicode-fa-s1,                      // 67
+    unicode-fa-s2,                      // 68
+    unicode-fa-s3,                      // 69
+    unicode-fi-s1,                      // 70
+    unicode-fi-s2,                      // 71
+    unicode-fi-s3,                      // 72
+    unicode-fi-phonebook-s1,            // 73 (fi__phonebook)
+    unicode-fi-phonebook-s2,            // 74
+    unicode-fi-phonebook-s3,            // 75
+    unicode-fil-s1,                     // 76
+    unicode-fil-s2,                     // 77
+    unicode-fil-s3,                     // 78
+    unicode-fo-s1,                      // 79
+    unicode-fo-s2,                      // 80
+    unicode-fo-s3,                      // 81
+    unicode-fr-ca-s1,                   // 82
+    unicode-fr-ca-s2,                   // 83
+    unicode-fr-ca-s3,                   // 84
+    unicode-gu-s1,                      // 85
+    unicode-gu-s2,                      // 86
+    unicode-gu-s3,                      // 87
+    unicode-ha-s1,                      // 88
+    unicode-ha-s2,                      // 89
+    unicode-ha-s3,                      // 90
+    unicode-haw-s1,                     // 91
+    unicode-haw-s2,                     // 92
+    unicode-haw-s3,                     // 93
+    unicode-he-s1,                      // 94
+    unicode-he-s2,                      // 95
+    unicode-he-s3,                      // 96
+    unicode-hi-s1,                      // 97
+    unicode-hi-s2,                      // 98
+    unicode-hi-s3,                      // 99
+    unicode-hr-s1,                      // 100
+    unicode-hr-s2,                      // 101
+    unicode-hr-s3,                      // 102
+    unicode-hu-s1,                      // 103
+    unicode-hu-s2,                      // 104
+    unicode-hu-s3,                      // 105
+    unicode-hy-s1,                      // 106
+    unicode-hy-s2,                      // 107
+    unicode-hy-s3,                      // 108
+    unicode-ig-s1,                      // 109
+    unicode-ig-s2,                      // 110
+    unicode-ig-s3,                      // 111
+    unicode-is-s1,                      // 112
+    unicode-is-s2,                      // 113
+    unicode-is-s3,                      // 114
+    unicode-ja-s1,                      // 115
+    unicode-ja-s2,                      // 116
+    unicode-ja-s3,                      // 117
+    unicode-kk-s1,                      // 118
+    unicode-kk-s2,                      // 119
+    unicode-kk-s3,                      // 120
+    unicode-kl-s1,                      // 121
+    unicode-kl-s2,                      // 122
+    unicode-kl-s3,                      // 123
+    unicode-kn-s1,                      // 124
+    unicode-kn-s2,                      // 125
+    unicode-kn-s3,                      // 126
+    unicode-ko-s1,                      // 127
+    unicode-ko-s2,                      // 128
+    unicode-ko-s3,                      // 129
+    unicode-kok-s1,                     // 130
+    unicode-kok-s2,                     // 131
+    unicode-kok-s3,                     // 132
+    unicode-ky-s1,                      // 133
+    unicode-ky-s2,                      // 134
+    unicode-ky-s3,                      // 135
+    unicode-lkt-s1,                     // 136
+    unicode-lkt-s2,                     // 137
+    unicode-lkt-s3,                     // 138
+    unicode-ln-s1,                      // 139
+    unicode-ln-s2,                      // 140
+    unicode-ln-s3,                      // 141
+    unicode-lt-s1,                      // 142
+    unicode-lt-s2,                      // 143
+    unicode-lt-s3,                      // 144
+    unicode-lv-s1,                      // 145
+    unicode-lv-s2,                      // 146
+    unicode-lv-s3,                      // 147
+    unicode-mk-s1,                      // 148
+    unicode-mk-s2,                      // 149
+    unicode-mk-s3,                      // 150
+    unicode-ml-s1,                      // 151
+    unicode-ml-s2,                      // 152
+    unicode-ml-s3,                      // 153
+    unicode-mr-s1,                      // 154
+    unicode-mr-s2,                      // 155
+    unicode-mr-s3,                      // 156
+    unicode-mt-s1,                      // 157
+    unicode-mt-s2,                      // 158
+    unicode-mt-s3,                      // 159
+    unicode-nb-s1,                      // 160
+    unicode-nb-s2,                      // 161
+    unicode-nb-s3,                      // 162
+    unicode-nn-s1,                      // 163
+    unicode-nn-s2,                      // 164
+    unicode-nn-s3,                      // 165
+    unicode-nso-s1,                     // 166
+    unicode-nso-s2,                     // 167
+    unicode-nso-s3,                     // 168
+    unicode-om-s1,                      // 169
+    unicode-om-s2,                      // 170
+    unicode-om-s3,                      // 171
+    unicode-or-s1,                      // 172
+    unicode-or-s2,                      // 173
+    unicode-or-s3,                      // 174
+    unicode-pa-s1,                      // 175
+    unicode-pa-s2,                      // 176
+    unicode-pa-s3,                      // 177
+    unicode-pl-s1,                      // 178
+    unicode-pl-s2,                      // 179
+    unicode-pl-s3,                      // 180
+    unicode-ro-s1,                      // 181
+    unicode-ro-s2,                      // 182
+    unicode-ro-s3,                      // 183
+    unicode-sa-s1,                      // 184
+    unicode-sa-s2,                      // 185
+    unicode-sa-s3,                      // 186
+    unicode-se-s1,                      // 187
+    unicode-se-s2,                      // 188
+    unicode-se-s3,                      // 189
+    unicode-si-s1,                      // 190
+    unicode-si-s2,                      // 191
+    unicode-si-s3,                      // 192
+    unicode-si-dictionary-s1,           // 193 (si__dictionary)
+    unicode-si-dictionary-s2,           // 194
+    unicode-si-dictionary-s3,           // 195
+    unicode-sk-s1,                      // 196
+    unicode-sk-s2,                      // 197
+    unicode-sk-s3,                      // 198
+    unicode-sl-s1,                      // 199
+    unicode-sl-s2,                      // 200
+    unicode-sl-s3,                      // 201
+    unicode-sq-s1,                      // 202
+    unicode-sq-s2,                      // 203
+    unicode-sq-s3,                      // 204
+    unicode-sr-s1,                      // 205
+    unicode-sr-s2,                      // 206
+    unicode-sr-s3,                      // 207
+    unicode-sr-latn-s1,                 // 208
+    unicode-sr-latn-s2,                 // 209
+    unicode-sr-latn-s3,                 // 210
+    unicode-sv-s1,                      // 211
+    unicode-sv-s2,                      // 212
+    unicode-sv-s3,                      // 213
+    unicode-sv-reformed-s1,             // 214 (sv__reformed)
+    unicode-sv-reformed-s2,             // 215
+    unicode-sv-reformed-s3,             // 216
+    unicode-ta-s1,                      // 217
+    unicode-ta-s2,                      // 218
+    unicode-ta-s3,                      // 219
+    unicode-te-s1,                      // 220
+    unicode-te-s2,                      // 221
+    unicode-te-s3,                      // 222
+    unicode-th-s1,                      // 223
+    unicode-th-s2,                      // 224
+    unicode-th-s3,                      // 225
+    unicode-tn-s1,                      // 226
+    unicode-tn-s2,                      // 227
+    unicode-tn-s3,                      // 228
+    unicode-to-s1,                      // 229
+    unicode-to-s2,                      // 230
+    unicode-to-s3,                      // 231
+    unicode-tr-s1,                      // 232
+    unicode-tr-s2,                      // 233
+    unicode-tr-s3,                      // 234
+    unicode-ug-cyrl-s1,                 // 235
+    unicode-ug-cyrl-s2,                 // 236
+    unicode-ug-cyrl-s3,                 // 237
+    unicode-uk-s1,                      // 238
+    unicode-uk-s2,                      // 239
+    unicode-uk-s3,                      // 240
+    unicode-ur-s1,                      // 241
+    unicode-ur-s2,                      // 242
+    unicode-ur-s3,                      // 243
+    unicode-vi-s1,                      // 244
+    unicode-vi-s2,                      // 245
+    unicode-vi-s3,                      // 246
+    unicode-vo-s1,                      // 247
+    unicode-vo-s2,                      // 248
+    unicode-vo-s3,                      // 249
+    unicode-wae-s1,                     // 250
+    unicode-wae-s2,                     // 251
+    unicode-wae-s3,                     // 252
+    unicode-wo-s1,                      // 253
+    unicode-wo-s2,                      // 254
+    unicode-wo-s3,                      // 255
+    unicode-yo-s1,                      // 256
+    unicode-yo-s2,                      // 257
+    unicode-yo-s3,                      // 258
+    unicode-zh-s1,                      // 259
+    unicode-zh-s2,                      // 260
+    unicode-zh-s3,                      // 261
+    unicode-zh-big5han-s1,              // 262 (zh__big5han)
+    unicode-zh-big5han-s2,              // 263
+    unicode-zh-big5han-s3,              // 264
+    unicode-zh-gb2312han-s1,            // 265 (zh__gb2312han)
+    unicode-zh-gb2312han-s2,            // 266
+    unicode-zh-gb2312han-s3,            // 267
+    unicode-zh-pinyin-s1,               // 268 (zh__pinyin)
+    unicode-zh-pinyin-s2,               // 269
+    unicode-zh-pinyin-s3,               // 270
+    unicode-zh-stroke-s1,               // 271 (zh__stroke)
+    unicode-zh-stroke-s2,               // 272
+    unicode-zh-stroke-s3,               // 273
+    unicode-zh-zhuyin-s1,               // 274 (zh__zhuyin)
+    unicode-zh-zhuyin-s2,               // 275
+    unicode-zh-zhuyin-s3                // 276
+  }
+
+  /// Indexed field types
+  @since(version = 0.1.2)
+  enum field-type {
+    boolean,
+    integer,
+    unsigned,
+    double,
+    number,
+    decimal,
+    %string,
+    varbinary,
+    uuid,
+    datetime,
+    array,
+    map,
+    scalar,
+  }
+
   /// Definition of a single key part in a Tarantool index.
-  @since(version = 0.1.0)
+  @since(version = 0.1.2)
   record key-part {
     /// Field index in the tuple (0-based).
     field-no: u32,
     /// Field type as a string, e.g., "unsigned", "string".
-    field-type: string,
+    %field-type: field-type,
     /// Optional collation name for string comparison.
-    collation: option<string>,
+    %collation: option<collation>,
     /// JSON path for multikey indexes (if applicable). If set, `field-type`
     /// refers to the nested field type.
     path: option<string>,
@@ -199,15 +744,19 @@ interface types {
   ///
   /// Corresponds to C type `box_tuple_t*`.
   /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/tuple/#c.box_tuple_t
-  @since(version = 0.1.0)
-  type box-tuple = u64;
+  @since(version = 0.1.2)
+  record box-tuple {
+    ptr: u64,
+  }
 
   /// Opaque pointer to a Tarantool key definition.
   ///
   /// Corresponds to C type `box_key_def_t*`.
   /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/tuple/#c.box_key_def_t
-  /// @since(version = 0.1.0)
-  type key-def = u64;
+  @since(version = 0.1.2)
+  record key-def {
+    ptr: u64,
+  }
 
   /// Opaque pointer to a Tarantool tuple format.
   ///
@@ -217,13 +766,17 @@ interface types {
   ///
   /// Corresponds to C type `box_tuple_format_t*`.
   /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/tuple/#c.box_tuple_format_t
-  @since(version = 0.1.0)
-  type tuple-format = u64;
+  @since(version = 0.1.2)
+  record tuple-format {
+    ptr: u64,
+  }
 
   /// Opaque pointer to a raw tuple field (MsgPack-encoded).
   ///
   /// Corresponds to the C type `const char*` pointing to a field within a
   /// MsgPack-encoded tuple.
-  @since(version = 0.1.0)
-  type tuple-field = u64;
+  @since(version = 0.1.2)
+  record tuple-field {
+    ptr: u64,
+  }
 }

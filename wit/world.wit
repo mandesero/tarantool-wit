@@ -1,8 +1,8 @@
-package tarantool:tarantool@0.1.1;
+package tarantool:tarantool@0.1.2;
 
-@since(version = 0.1.1)
+@since(version = 0.1.2)
 world imports {
-    @since(version = 0.1.0)
+    @since(version = 0.1.2)
     import types;
     @since(version = 0.1.0)
     import msgpack;
@@ -10,13 +10,13 @@ world imports {
     import ttbox;
     @since(version = 0.1.0)
     import say;
-    @since(version = 0.1.0)
+    @since(version = 0.1.2)
     import error;
     @since(version = 0.1.0)
     import session;
     @since(version = 0.1.0)
     import txn;
-    @since(version = 0.1.0)
+    @since(version = 0.1.2)
     import index;
     @since(version = 0.1.0)
     import sequence;

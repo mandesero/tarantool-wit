@@ -1,11 +1,10 @@
 
-@since(version = 0.1.0)
+@since(version = 0.1.2)
 interface error {
 
-    @since(version = 0.1.0)
-    use types.{box-error};
+    use types.{box-error, error-code};
   
-    /// Creates a new error object with the given message, type, and error code.
+    /// Creates a new error object with the given message and error code.
     ///
     /// ### Parameters
     /// - `message`: The error message.
@@ -14,8 +13,23 @@ interface error {
     ///
     /// ### Returns
     /// - A new `box-error` object.
-    @since(version = 0.1.0)
-    error-new: func(message: string, %type: string, code: u32, file: option<string>, line: option<u32>) -> box-error;
+    @since(version = 0.1.2)
+    new: func(code: error-code, message: string) -> box-error;
+
+    @since(version = 0.1.2)
+      /// Creates a new error object with the given message, error code and location.
+    ///
+    /// ### Parameters
+    /// - `message`: The error message.
+    /// - `type`: The error type name.
+    /// - `code`: The numeric error code.
+    /// - `file`: The file name.
+    /// - `line`: The line number in file.
+    ///
+    /// ### Returns
+    /// - A new `box-error` object.
+    @since(version = 0.1.2)
+    new-with-location: func(code: error-code, message: string, file: option<string>, line: option<u32>) -> box-error;
   
     /// Sets the given error as the current "last error".
     ///
