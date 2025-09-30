@@ -14,6 +14,7 @@ interfaces and Tarantool APIs.
 | `error.wit` | [`box.error`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_error/) |
 | `index.wit` | [`box.index`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_index/) |
 | `key-def.wit` | `box.key_def` C API |
+| `metrics.wit`     | Module for metrics (currently provides only `uptime`) |
 | `msgpack.wit` | [`msgpack`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/msgpack/) module |
 | `sequence.wit` | [`box.sequence`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_sequence/) |
 | `session.wit` | [`box.session`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_session/) |

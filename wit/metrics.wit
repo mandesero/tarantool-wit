@@ -1,0 +1,12 @@
+@since(version = 0.1.3)
+interface metrics {
+
+    /// Returns the current uptime of the instance in seconds.
+    ///
+    /// Corresponds to `box.info.uptime`.
+    ///
+    /// ### Returns
+    /// - Uptime in seconds as a floating-point value (`f64`).
+    @since(version = 0.1.3)
+    uptime: func() -> f64;
+}

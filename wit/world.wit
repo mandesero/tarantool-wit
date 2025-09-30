@@ -1,9 +1,11 @@
-package tarantool:tarantool@0.1.2;
+package tarantool:tarantool@0.1.3;
 
-@since(version = 0.1.2)
+@since(version = 0.1.3)
 world imports {
     @since(version = 0.1.2)
     import types;
+    @since(version = 0.1.3)
+    import metrics;
     @since(version = 0.1.0)
     import msgpack;
     @since(version = 0.1.0)
