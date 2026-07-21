@@ -725,7 +725,7 @@ interface types {
     uuid,
     datetime,
     array,
-    map,
+    %map,
     scalar,
   }
 

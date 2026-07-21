@@ -1,4 +1,4 @@
-package tarantool:tarantool@0.1.3;
+package tarantool:tarantool@0.1.4;
 
 @since(version = 0.1.3)
 world imports {
