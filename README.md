@@ -45,7 +45,11 @@ implied.
 
 ## Documentation
 
-The [API guide](docs/api.md) describes MessagePack shapes, return semantics,
+Starting with `0.2.0`, the
+[versioned generated API reference](https://mandesero.github.io/tarantool-wit/)
+is published with every stable release. Prerelease tags do not update Pages or
+the `latest` alias. The [API guide](docs/api.md) describes
+MessagePack shapes, return semantics,
 ownership, and a short example for every interface. The
 [public value model ADR](docs/adr/0001-public-value-model.md) defines the trust
 boundary and explains the choice between ID records, copied values, opaque
@@ -173,7 +177,10 @@ scripts/report-contract-changes.sh /tmp/tarantool-wit-contract-changes.md
 
 Release tags must use `v<version>` and exactly match the package version in all
 WIT files. The publish workflow runs the complete contract validation workflow
-and verifies the tag ref and version before uploading an artifact.
+and verifies the tag ref and version before uploading an artifact. After the
+stable OCI package is published and signed, the workflow deploys generated
+HTML and Markdown documentation to versioned GitHub Pages paths and updates
+`latest`.
 
 ## Useful links
 
