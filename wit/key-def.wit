@@ -1,13 +1,16 @@
 @since(version = 0.2.0)
+/// Builds key definitions used to validate, extract, and compare tuple keys.
+///
+/// Every returned handle is owned and must be released through this interface.
 interface key-def {
-  
+
     @since(version = 0.2.0)
     use types.{box-error, box-tuple, key-def, key-part, msgpack-value};
-  
+
     /// Creates a new key definition from a list of parts.
     ///
-    /// Each key part defines one field to be used in a key for indexing or validation.
-    /// The `KeyPart` structure includes field number, type, optional collation, path, and flags.
+    /// Each key part selects a tuple field and defines its type, optional
+    /// collation, optional path, and flags.
     ///
     /// ### Parameters
     /// - `parts`: List of `key-part` objects.
@@ -16,25 +19,15 @@ interface key-def {
     /// - A new owned `key-def` handle on success. The caller must eventually
     ///   release it with the public `release` function in this interface.
     ///
-    /// ### Raises
-    /// - `box-error
-    ///
-    /// **Python**
-    /// ```
-    /// parts = [
-    ///     KeyPart(field_no=0, field_type="unsigned", collation=None, path=None,
-    ///             flags=KeyPartFlags.IS_NULLABLE),
-    ///     KeyPart(field_no=1, field_type="string", collation="unicode", path=None,
-    ///             flags=KeyPartFlags.EXCLUDE_NULL)
-    /// ]
-    /// kd = key_def.new(parts)
-    /// ```
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     new: func(parts: list<key-part>) -> result<key-def, box-error>;
-  
+
     /// Creates a deep copy of the given key definition.
     ///
-    /// The returned `key-def` is independent of the original and must be released manually.
+    /// The returned `key-def` is independent of the original and owns one
+    /// reference.
     ///
     /// ### Parameters
     /// - `key-def`: The key definition to duplicate.
@@ -44,15 +37,15 @@ interface key-def {
     ///   must eventually release it with the public `release` function in this
     ///   interface.
     ///
-    /// ### Raises
-    /// - `box-error
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     duplicate: func(key-def: key-def) -> result<key-def, box-error>;
-  
+
     /// Merges two key definitions into one.
     ///
-    /// Fields from the right-hand side are appended if they are not duplicates of the left.
-    /// The resulting merged definition can be used for composite index construction.
+    /// Fields from the right-hand side are appended when they do not duplicate
+    /// fields from the left-hand side.
     ///
     /// ### Parameters
     /// - `left`: The base key definition.
@@ -62,27 +55,25 @@ interface key-def {
     /// - A new owned `key-def` handle. The caller must eventually release it
     ///   with the public `release` function in this interface.
     ///
-    /// ### Raises
-    /// - `box-error
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     merge: func(left: key-def, right: key-def) -> result<key-def, box-error>;
-  
+
     /// Releases a key definition and invalidates all aliases of its handle.
     ///
-    /// You **must** call this for all key definitions you create with `new`,
+    /// Call this once for every key definition returned by `new`,
     /// `duplicate`, or `merge`. Releasing a stale handle traps.
     ///
     /// ### Parameters
     /// - `key-def`: The key definition to release.
     ///
-    /// ### Raises
-    /// - `box-error
     @since(version = 0.2.0)
     release: func(key-def: key-def);
-  
+
     /// Returns a list of key parts from a given key definition.
     ///
-    /// Useful for debugging and introspection — lets you inspect fields and their order.
+    /// The returned list is copied into guest-owned memory.
     ///
     /// ### Parameters
     /// - `key-def`: The key definition to inspect.
@@ -90,11 +81,11 @@ interface key-def {
     /// ### Returns
     /// - List of `key-part` objects.
     ///
-    /// ### Raises
-    /// - `box-error
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     dump-parts: func(key-def: key-def) -> result<list<key-part>, box-error>;
-  
+
     /// Validates whether a given key conforms to the key definition.
     ///
     /// Checks the number of fields and their types, allowing partial matches
@@ -107,11 +98,11 @@ interface key-def {
     /// ### Returns
     /// - `ok` if the key conforms to the definition.
     ///
-    /// ### Raises
-    /// - `box-error
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     validate-key: func(key-def: key-def, key: msgpack-value) -> result<_, box-error>;
-  
+
     /// Validates whether a key **fully** matches the key definition.
     ///
     /// Differs from `validate-key` by requiring exact number of parts.
@@ -124,11 +115,11 @@ interface key-def {
     /// ### Returns
     /// - `ok` if the key fully conforms to the definition.
     ///
-    /// ### Raises
-    /// - `box-error
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     validate-full-key: func(key-def: key-def, key: msgpack-value) -> result<_, box-error>;
-  
+
     /// Returns the number of parts in the key definition.
     ///
     /// Each part corresponds to one field used in index comparison or validation.
@@ -139,11 +130,11 @@ interface key-def {
     /// ### Returns
     /// - Number of parts as `u32`.
     ///
-    /// ### Raises
-    /// - `box-error
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     part-count: func(key-def: key-def) -> result<u32, box-error>;
-  
+
     /// Extracts a key from a given tuple based on the key definition.
     ///
     /// The result is a MessagePack-encoded byte buffer representing the key,

@@ -1,10 +1,11 @@
 
 @since(version = 0.2.0)
+/// Creates copied errors and accesses the current last-error slot.
 interface error {
 
     use types.{box-error, error-code};
-  
-    /// Creates a new error object.
+
+    /// Creates a copied error value.
     ///
     /// Corresponds to `box.error.new{ ... }`.
     ///
@@ -14,11 +15,11 @@ interface error {
     /// - `message`: The error message.
     ///
     /// ### Returns
-    /// - A new `box-error` object.
+    /// - A new `box-error` value.
     @since(version = 0.2.0)
     new: func(code: error-code, message: string) -> box-error;
 
-    /// Creates a new error object with the given message, code and source location.
+    /// Creates a copied error value with a source location.
     ///
     /// Corresponds to `box.error.new{ ... }`.
     ///
@@ -30,10 +31,10 @@ interface error {
     /// - `line`: Line number in file.
     ///
     /// ### Returns
-    /// - A new `box-error` object.
+    /// - A new `box-error` value.
     @since(version = 0.2.0)
     new-with-location: func(code: error-code, message: string, file: option<string>, line: option<u32>) -> box-error;
-  
+
     /// Sets the given error as the current "last error".
     ///
     /// Corresponds to `box.error.set(err)`.
@@ -43,7 +44,7 @@ interface error {
     @since(version = 0.2.0)
     set: func(err: box-error);
 
-    /// Returns the last error set by the system or user code.
+    /// Returns a copy of the last error in the current execution context.
     ///
     /// Corresponds to `box.error.last()`.
     /// Returns `none` if no error is currently set.
@@ -56,7 +57,7 @@ interface error {
     @since(version = 0.2.0)
     clear: func();
 
-    /// Converts a `box-error` object to a string representation.
+    /// Formats a `box-error` value for diagnostics.
     ///
     /// Equivalent to `tostring(err)` in Tarantool.
     ///
