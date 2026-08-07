@@ -8,6 +8,7 @@ on:
 
 env:
   WKG_VERSION: 0.16.0
+  WIT_BINDGEN_VERSION: 0.60.0
 
 jobs:
   validate:
@@ -68,10 +69,95 @@ jobs:
           file: 'tarantool-tarantool.wasm'
           description: 'WIT definitions for Tarantool (WASM component)'
           source: 'https://github.com/mandesero/tarantool-wit'
-          homepage: 'https://github.com/mandesero/tarantool-wit'
+          homepage: 'https://mandesero.github.io/tarantool-wit/'
           version: ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
           licenses: 'BSD-2-Clause'
 
       - name: Sign the Wasm component
         run: |
           cosign sign --yes ghcr.io/mandesero/tarantool/tarantool@${{ steps.publish.outputs.digest }}
+
+  pages:
+    needs:
+      - validate
+      - publish
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+    runs-on: ubuntu-latest
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Check Pages release eligibility
+        id: pages_eligibility
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: scripts/pages-release-eligibility.sh "$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Configure GitHub Pages
+        if: steps.pages_eligibility.outputs.eligible == 'true'
+        id: pages
+        uses: actions/configure-pages@v6
+
+      - name: Check existing Pages release
+        if: steps.pages_eligibility.outputs.eligible == 'true'
+        id: pages_guard
+        shell: bash
+        env:
+          PAGES_BASE_URL: ${{ steps.pages.outputs.base_url }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          current_file=$(mktemp)
+          trap 'rm -f "$current_file"' EXIT
+          status=$(curl --silent --show-error --location \
+            --header 'Cache-Control: no-cache' \
+            --output "$current_file" \
+            --write-out '%{http_code}' \
+            "${PAGES_BASE_URL%/}/latest/release.txt?run=${GITHUB_RUN_ID}")
+
+          case "$status" in
+            200) current_tag=$(tr -d '\r\n' < "$current_file") ;;
+            404) current_tag= ;;
+            *)
+              echo "failed to read current Pages release: HTTP $status" >&2
+              exit 1
+              ;;
+          esac
+
+          scripts/pages-deployment-decision.sh \
+            "$current_tag" "$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Install cargo-binstall
+        if: steps.pages_guard.outputs.deploy == 'true'
+        uses: cargo-bins/cargo-binstall@v1.21.1
+
+      - name: Install wit-bindgen
+        if: steps.pages_guard.outputs.deploy == 'true'
+        run: cargo binstall --no-confirm --version "$WIT_BINDGEN_VERSION" wit-bindgen-cli
+
+      - name: Build versioned API documentation
+        if: steps.pages_guard.outputs.deploy == 'true'
+        run: scripts/build-pages-site.sh _site "${{ github.ref_name }}"
+
+      - name: Upload GitHub Pages artifact
+        if: steps.pages_guard.outputs.deploy == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      - name: Deploy GitHub Pages
+        if: steps.pages_guard.outputs.deploy == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v5
