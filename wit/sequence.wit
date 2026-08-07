@@ -1,8 +1,9 @@
 @since(version = 0.2.0)
+/// Reads and changes sequences that already exist in Tarantool.
 interface sequence {
     @since(version = 0.2.0)
     use types.{sequence, box-error};
-  
+
     /// Generates the next value of the specified sequence.
     ///
     /// This updates the state of the sequence.
@@ -13,15 +14,15 @@ interface sequence {
     /// ### Returns
     /// - The next value of the sequence as `s64`.
     ///
-    /// ### Raises
-    /// - `box-error
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     next: func(seq: sequence) -> result<s64, box-error>;
-  
+
     /// Returns the current value of the specified sequence.
     ///
-    /// Unlike `next()`, this does **not** increment the sequence.
-    /// Returns an error if the sequence was never accessed via `next()` or `set()`.
+    /// Unlike `next`, this does not increment the sequence. It returns an error
+    /// if the sequence has not been advanced or set since creation or reset.
     ///
     /// ### Parameters
     /// - `seq`: The target sequence object.
@@ -29,36 +30,32 @@ interface sequence {
     /// ### Returns
     /// - The current value of the sequence as `s64`.
     ///
-    /// ### Raises
-    /// - `box-error
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     current: func(seq: sequence) -> result<s64, box-error>;
-  
+
     /// Sets the sequence to a specific value.
-    ///
-    /// This function is useful when you want to jump to a specific number in the sequence.
     ///
     /// ### Parameters
     /// - `seq`: The target sequence object.
     /// - `value`: The new value to assign.
     ///
-    /// ### Raises
-    /// - `box-error``
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     set: func(seq: sequence, value: s64) -> result<_, box-error>;
-  
+
     /// Resets the sequence to its initial state.
     ///
-    /// This call clears the current sequence value, effectively "forgetting" the state.
-    /// After a reset, calling `current()` will return an error until `next()` or `set()` is called again.
-    ///
-    /// Internally, if no transaction is active, this function starts and commits one.
+    /// This clears the current value. After a reset, `current` returns an error
+    /// until `next` or `set` assigns another value.
     ///
     /// ### Parameters
     /// - `seq`: The target sequence object.
     ///
-    /// ### Raises
-    /// - `box-error
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     reset: func(seq: sequence) -> result<_, box-error>;
 }

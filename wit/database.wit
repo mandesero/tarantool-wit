@@ -1,22 +1,26 @@
 @since(version = 0.2.0)
 /// General database operations exposed by Tarantool's `box` API.
+///
+/// Functions returning `result` preserve Tarantool failures as `box-error`.
+/// An `option` inside a successful result represents a normal missing object.
 interface database {
 
     @since(version = 0.2.0)
     use types.{space, box-error, index, box-tuple, msgpack-value};
-  
+
     /// Returns the current schema version of the database.
     ///
-    /// The schema version increases whenever the schema changes, such as creating or dropping spaces or indexes.
+    /// The version changes when Tarantool modifies schema objects such as
+    /// spaces or indexes.
     ///
     /// ### Returns
     /// - The current unsigned schema version.
     @since(version = 0.2.0)
     schema-version: func() -> u32;
-  
+
     /// Retrieves a space object by its name.
     ///
-    /// This function performs a lookup for a space by name and returns a reference used in subsequent operations.
+    /// The returned record contains a catalog ID and does not own host state.
     ///
     /// ### Parameters
     /// - `name`: The name of the space to retrieve.
@@ -25,10 +29,10 @@ interface database {
     /// - `some` with the space, or `none` if no space has this name.
     @since(version = 0.2.0)
     space-by-name: func(name: string) -> result<option<space>, box-error>;
-  
+
     /// Retrieves an index object by name within a space.
     ///
-    /// This function looks up the specified index in the given space and returns a reference to it.
+    /// The returned record contains catalog IDs and does not own host state.
     ///
     /// ### Parameters
     /// - `space`: The space to search within.
@@ -39,7 +43,7 @@ interface database {
     ///   name.
     @since(version = 0.2.0)
     index-by-name: func(%space: space, name: string) -> result<option<index>, box-error>;
-  
+
     /// Inserts a new tuple into a space.
     ///
     /// The tuple must be one complete MessagePack array:
@@ -55,7 +59,7 @@ interface database {
     ///   `tarantool:tarantool/box-tuple` interface.
     @since(version = 0.2.0)
     insert: func(space: space, tup: msgpack-value) -> result<box-tuple, box-error>;
-  
+
     /// Updates an existing tuple by key in the specified index.
     ///
     /// - `key` must be a MessagePack array identifying the tuple, for example
@@ -81,7 +85,7 @@ interface database {
         key: msgpack-value,
         ops: msgpack-value,
     ) -> result<option<box-tuple>, box-error>;
-  
+
     /// Replaces an existing tuple or inserts a new one.
     ///
     /// ### Parameters
@@ -94,7 +98,7 @@ interface database {
     ///   `tarantool:tarantool/box-tuple` interface.
     @since(version = 0.2.0)
     replace: func(space: space, tup: msgpack-value) -> result<box-tuple, box-error>;
-  
+
     /// Performs an UPSERT operation: update if exists, insert otherwise.
     ///
     /// ### Parameters
@@ -102,9 +106,16 @@ interface database {
     /// - `tup`: One complete MessagePack tuple array to insert.
     /// - `ops`: One complete MessagePack array whose items are update-operation
     ///   arrays.
+    ///
+    /// ### Returns
+    /// - `ok(())` after Tarantool applies the upsert.
+    ///
+    /// ### Errors
+    /// - A `box-error` if the tuple, key, or operations are invalid, or if the
+    ///   operation otherwise fails.
     @since(version = 0.2.0)
     upsert: func(index: index, tup: msgpack-value, ops: msgpack-value) -> result<_, box-error>;
-  
+
     /// Deletes a tuple by key from the specified index.
     ///
     /// The key must be encoded as a MessagePack array, for example `[1]`.
@@ -121,7 +132,7 @@ interface database {
     ///   interface.
     @since(version = 0.2.0)
     delete: func(index: index, key: msgpack-value) -> result<option<box-tuple>, box-error>;
-  
+
     /// Removes all tuples from the space.
     ///
     /// This operation is equivalent to SQL's `TRUNCATE TABLE`.
@@ -130,7 +141,7 @@ interface database {
     /// - `space`: The target space to truncate.
     ///
     /// ### Returns
-    /// - `null` on success, or an error.
+    /// - `ok(())` after the space is empty.
     @since(version = 0.2.0)
     truncate: func(space: space) -> result<_, box-error>;
 }

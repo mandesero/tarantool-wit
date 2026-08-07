@@ -1,4 +1,5 @@
 @since(version = 0.2.0)
+/// Reads metrics maintained by the Tarantool instance.
 interface metrics {
 
     /// Returns the current uptime of the instance in seconds.

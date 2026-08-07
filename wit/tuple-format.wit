@@ -1,9 +1,10 @@
 @since(version = 0.2.0)
+/// Manages tuple formats and their ownership references.
 interface tuple-format {
-    
+
     @since(version = 0.2.0)
     use types.{key-def, box-error, tuple-format};
-  
+
     /// Returns the default tuple format.
     ///
     /// This format is used to create tuples not bound to any specific space.
@@ -13,10 +14,11 @@ interface tuple-format {
     ///   with the public `release` function in this interface.
     @since(version = 0.2.0)
     default: func() -> tuple-format;
-  
+
     /// Creates a new tuple format based on a list of key definitions.
     ///
-    /// Key definitions define constraints and structure (field types, paths, etc.).
+    /// Key definitions supply field types, paths, collations, and nullability
+    /// constraints.
     ///
     /// ### Parameters
     /// - `key-defs`: Borrowed key-definition handles used only for this call.
@@ -25,26 +27,12 @@ interface tuple-format {
     /// ### Returns
     /// - A new owned `tuple-format` handle. The caller must eventually release
     ///   it with the public `release` function in this interface.
-    /// 
-    /// ### Raises
-    /// - `box-error
     ///
-    /// ### Examples
-    ///
-    /// **Python**
-    /// ```
-    /// parts = [
-    ///     KeyPart(field_no=0, field_type="unsigned", collation=None, path=None,
-    ///             flags=KeyPartFlags.IS_NULLABLE),
-    ///     KeyPart(field_no=1, field_type="string", collation=None, path=None,
-    ///             flags=KeyPartFlags.EXCLUDE_NULL)
-    /// ]
-    /// kd = key_def.new(parts)
-    /// tf = tuple_format.new([kd])
-    /// ```
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     new: func(key-defs: list<key-def>) -> result<tuple-format, box-error>;
-  
+
     /// Increments the reference counter of the tuple format.
     ///
     /// Call this to acquire one additional ownership reference for the same
@@ -54,7 +42,7 @@ interface tuple-format {
     /// - `tf`: Tuple format to retain.
     @since(version = 0.2.0)
     retain: func(tf: tuple-format);
-  
+
     /// Decrements the reference counter of the tuple format.
     ///
     /// Must be called once for every owned reference. The final `release`

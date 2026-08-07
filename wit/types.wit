@@ -1,4 +1,5 @@
 @since(version = 0.2.0)
+/// Shared copied values, catalog IDs, enums, and opaque handle records.
 interface types {
 
   /// Exactly one complete MessagePack value encoded as bytes.
@@ -53,7 +54,7 @@ interface types {
     space-id: u32,
   }
 
-  /// Context information for logging: file name and line number.
+  /// Optional guest source location attached to a log message.
   @since(version = 0.2.0)
   record log-context {
     /// Name of the source file generating the log.
@@ -64,7 +65,7 @@ interface types {
 
   /// Defines the severity levels used in Tarantool logging.
   ///
-  /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/say/#_CPPv49say_level
+  /// See <https://www.tarantool.io/en/doc/latest/reference/reference_capi/say/>.
   @since(version = 0.2.0)
   enum log-level {
     /// Recoverable error.
@@ -91,9 +92,9 @@ interface types {
   /// Isolation levels available for Tarantool transactions.
   @since(version = 0.2.0)
   enum transaction-isolation {
-    /// Use the global default_isolation_level.
+    /// Use Tarantool's configured default isolation level.
     default,
-    /// Automatically determine the best isolation level (default).
+    /// Let Tarantool choose the isolation level for the transaction.
     best-effort,
     /// Read only committed, but not unconfirmed changes.
     read-committed,
@@ -105,7 +106,7 @@ interface types {
 
   /// Iterator types for index scans in Tarantool.
   ///
-  /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/box_index/#_CPPv413iterator_type
+  /// See <https://www.tarantool.io/en/doc/latest/reference/reference_capi/box_index/>.
   @since(version = 0.2.0)
   enum iterator-type {
     /// Equal.
@@ -138,16 +139,11 @@ interface types {
     previous-prefix,
   }
 
-  /// A sequence is a generator of strictly increasing integer values in Tarantool.
+  /// Identifies a sequence that already exists in Tarantool.
   ///
-  /// Sequence objects must be created in Tarantool before using WIT methods.
-  /// There is currently no C API to create a sequence object from WIT alone.
-  ///
-  /// See Tarantool documentation on sequences:
-  /// https://www.tarantool.io/ru/doc/latest/platform/ddl_dml/sequences/
-  ///
-  /// See GitHub issue for creating sequences from guest languages:
-  /// https://github.com/mandesero/tarantool-wit/issues/1
+  /// The WIT interface changes sequence state but does not create schema
+  /// objects. See
+  /// <https://www.tarantool.io/en/doc/latest/platform/ddl_dml/sequences/>.
   @since(version = 0.2.0)
   record sequence {
     /// Numeric identifier of the sequence in Tarantool.
@@ -163,10 +159,10 @@ interface types {
     exclude-null,
   }
 
-  /// Collation identifiers.
+  /// Built-in Tarantool collation identifiers supported by this contract.
   ///
-  /// Values correspond to IDs from Tarantool's `_collation` system space.
-  /// The numeric value matches the collation id used by the database.
+  /// Case ordinals correspond to the built-in IDs in Tarantool's `_collation`
+  /// system space. User-defined collations are outside this closed enum.
   @since(version = 0.2.0)
   enum collation {
     none,                               // 0
@@ -448,7 +444,7 @@ interface types {
     unicode-zh-zhuyin-s3                // 276
   }
 
-  /// Indexed field types
+  /// Field types supported by key definitions.
   @since(version = 0.2.0)
   enum field-type {
     boolean,
@@ -471,7 +467,7 @@ interface types {
   record key-part {
     /// Field index in the tuple (0-based).
     field-no: u32,
-    /// Field type as a string, e.g., "unsigned", "string".
+    /// Type required for the selected field.
     %field-type: field-type,
     /// Optional collation name for string comparison.
     %collation: option<collation>,
@@ -492,6 +488,7 @@ interface types {
   /// not a method on this record.
   @since(version = 0.2.0)
   record box-tuple {
+    /// Opaque value resolved by the host.
     handle: u64,
   }
 
@@ -504,6 +501,7 @@ interface types {
   /// function, not a method on this record.
   @since(version = 0.2.0)
   record key-def {
+    /// Opaque value resolved by the host.
     handle: u64,
   }
 
@@ -521,6 +519,7 @@ interface types {
   /// function, not a method on this record.
   @since(version = 0.2.0)
   record tuple-format {
+    /// Opaque value resolved by the host.
     handle: u64,
   }
 

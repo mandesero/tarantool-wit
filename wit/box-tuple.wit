@@ -1,9 +1,13 @@
 @since(version = 0.2.0)
+/// Creates, reads, validates, and compares Tarantool tuples.
+///
+/// Returned handles are owned unless documented otherwise. Returned fields
+/// and serialized values are copies in guest memory.
 interface box-tuple {
-  
+
     @since(version = 0.2.0)
     use types.{box-error, box-tuple, tuple-field, tuple-format, key-def, msgpack-value};
-  
+
     /// Creates a new tuple from MessagePack data using the default tuple format.
     ///
     /// The data must be a MessagePack-encoded array (for example,
@@ -16,12 +20,12 @@ interface box-tuple {
     /// - A new owned `box-tuple` handle, or `box-error`. The caller must
     ///   eventually release it with the public `release` function in this
     ///   interface.
-    /// 
-    /// ### Raises
-    /// - `box-error
+    ///
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     new: func(data: msgpack-value) -> result<box-tuple, box-error>;
-  
+
     /// Increases the reference count of the tuple.
     ///
     /// Call this to acquire one additional ownership reference for the same
@@ -32,7 +36,7 @@ interface box-tuple {
     ///
     @since(version = 0.2.0)
     retain: func(t: box-tuple);
-  
+
     /// Decreases the reference count of the tuple.
     ///
     /// If the count reaches zero, the handle and all of its aliases become
@@ -42,7 +46,7 @@ interface box-tuple {
     /// - `t`: The tuple to release.
     @since(version = 0.2.0)
     release: func(t: box-tuple);
-  
+
     /// Returns the number of fields in the tuple (i.e., array size).
     ///
     /// ### Parameters
@@ -52,7 +56,7 @@ interface box-tuple {
     /// - Field count as `u32`.
     @since(version = 0.2.0)
     field-count: func(t: box-tuple) -> u32;
-  
+
     /// Returns the byte size of the internal MessagePack data.
     ///
     /// Useful for buffer allocations.
@@ -64,7 +68,7 @@ interface box-tuple {
     /// - Number of bytes used as `u64`.
     @since(version = 0.2.0)
     byte-size: func(t: box-tuple) -> u64;
-  
+
     /// Serializes the tuple to a MessagePack byte array.
     ///
     /// This data can be passed to the public `to-json` function from the
@@ -77,11 +81,11 @@ interface box-tuple {
     /// ### Returns
     /// - One complete MessagePack array containing the tuple fields.
     ///
-    /// ### Raises
-    /// - `box-error
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     to-bytes: func(t: box-tuple) -> result<msgpack-value, box-error>;
-  
+
     /// Returns the format object associated with the tuple.
     ///
     /// ### Parameters
@@ -92,11 +96,9 @@ interface box-tuple {
     ///   The caller must eventually release it with the public `release`
     ///   function from the `tarantool:tarantool/tuple-format` interface.
     ///
-    /// ### Raises
-    /// - `box-error
     @since(version = 0.2.0)
     format: func(t: box-tuple) -> tuple-format;
-  
+
     /// Returns the field at the specified index (zero-based).
     ///
     /// The returned value contains one complete copied MessagePack value.
@@ -108,11 +110,11 @@ interface box-tuple {
     /// ### Returns
     /// - `some` with a copied field, or `none` if `idx` is out of range.
     ///
-    /// ### Raises
-    /// - `box-error
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     field: func(t: box-tuple, idx: u32) -> result<option<tuple-field>, box-error>;
-  
+
     /// Returns a copied field selected by a JSON path expression.
     ///
     /// ### Parameters
@@ -123,23 +125,17 @@ interface box-tuple {
     /// ### Returns
     /// - `some` with a copied field, or `none` if the path selects no field.
     ///
-    /// ### Raises
-    /// - `box-error
-    /// 
-    /// ### Examples
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     ///
-    /// **Python**
-    /// ```
-    /// field = tt_tuple.field_by_path(tup, "[1].x")
-    /// value = None if field is None else json.loads(msgpack.to_json(field))
-    /// ```
     @since(version = 0.2.0)
     field-by-path: func(t: box-tuple, path: string) -> result<option<tuple-field>, box-error>;
-  
+
     /// Updates fields in a tuple using the given update expression.
     ///
-    /// The expression must be a MessagePack-encoded array of operations like:
-    /// `[["=", 1, "new_value"]]`, where the first item is an operation, second is field index, and third is the value.
+    /// The expression must be a MessagePack array of operation arrays, for
+    /// example `[["=", 1, "new_value"]]`. Operation field indexes are
+    /// zero-based. The original tuple is unchanged.
     ///
     /// ### Parameters
     /// - `t`: The tuple to update.
@@ -151,15 +147,18 @@ interface box-tuple {
     ///   The caller must eventually release it with the public `release`
     ///   function in this interface.
     ///
-    /// ### Raises
-    /// - `box-error
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     update: func(t: box-tuple, expr: msgpack-value) -> result<box-tuple, box-error>;
-  
-    /// Performs an upsert operation on the tuple using the provided expression.
+
+    /// Applies update operations while ignoring client-operation errors.
     ///
-    /// This operation applies updates if the field exists or appends otherwise.
-    /// Common upsert usage includes incrementing fields: `[["+", 2, 1]]`.
+    /// Valid operations are applied to a copy of the tuple. Invalid operations,
+    /// such as a type mismatch or missing field, are skipped and may be logged
+    /// by Tarantool. System failures still return `box-error`. Despite its
+    /// name, this function does not insert a tuple into a space. The original
+    /// tuple is unchanged.
     ///
     /// ### Parameters
     /// - `t`: The tuple.
@@ -171,11 +170,11 @@ interface box-tuple {
     ///   The caller must eventually release it with the public `release`
     ///   function in this interface.
     ///
-    /// ### Raises
-    /// - `box-error
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     upsert: func(t: box-tuple, expr: msgpack-value) -> result<box-tuple, box-error>;
-  
+
     /// Validates a tuple against the given format.
     ///
     /// Checks field types and nullability constraints.
@@ -190,11 +189,11 @@ interface box-tuple {
     /// A tuple that does not conform is returned as a `box-error`; it is not a
     /// normal boolean result.
     ///
-    /// ### Raises
-    /// - `box-error
+    /// ### Errors
+    /// - A `box-error` describing the failure.
     @since(version = 0.2.0)
     validate: func(t: box-tuple, format: tuple-format) -> result<_, box-error>;
-  
+
     /// Compares two tuples using a given key definition.
     ///
     /// The comparison is lexicographical by key fields.
@@ -203,14 +202,14 @@ interface box-tuple {
     /// - `key-def`: Definition of fields to compare.
     /// - `left`: First tuple.
     /// - `right`: Second tuple.
-    /// 
+    ///
     /// ### Returns
     /// - `0` if equal
     /// - `<0` if `left < right`
     /// - `>0` if `left > right`
     @since(version = 0.2.0)
     compare: func(key-def: key-def, left: box-tuple, right: box-tuple) -> s32;
-  
+
     /// Compares a tuple with a key using the given key definition.
     ///
     /// ### Parameters
@@ -223,16 +222,17 @@ interface box-tuple {
     /// - `<0` if tuple < key
     /// - `>0` if tuple > key
     ///
-    /// ### Raises
-    /// - `box-error` if `key` is malformed, is not an array, does not match the
-    ///   key definition, or if comparison fails.
+    /// ### Errors
+    /// - A `box-error` if `key` is malformed, does not match the key
+    ///   definition, or cannot be compared.
     @since(version = 0.2.0)
     compare-with-key: func(
         %tuple: box-tuple,
         key: msgpack-value,
         key-def: key-def,
     ) -> result<s32, box-error>;
-  
+
+    /// Stateful traversal over the top-level fields of one tuple.
     @since(version = 0.2.0)
     resource iterator {
         /// Creates a new iterator over the fields of a tuple.
@@ -248,28 +248,29 @@ interface box-tuple {
         /// ### Returns
         /// - A new `iterator` resource, or a `box-error`. Dropping the
         ///   iterator releases its retained tuple reference.
-        /// 
-        /// ### Raises
-        /// - `box-error
+        ///
+        /// ### Errors
+        /// - A `box-error` describing the failure.
         @since(version = 0.2.0)
         new: static func(%tuple: box-tuple) -> result<iterator, box-error>;
-    
+
         /// Returns the current iterator position (index of the next field).
         ///
         /// ### Returns
         /// - The next field index (zero-based).
         @since(version = 0.2.0)
         position: func() -> u32;
-    
+
         /// Rewinds the iterator to the beginning of the tuple.
         ///
         /// After this call, the next field will be the first.
         @since(version = 0.2.0)
         rewind: func();
-    
-        /// Seeks to a given field index in the tuple.
+
+        /// Seeks to and returns a field at the given tuple index.
         ///
-        /// The next call to `next()` will return this field.
+        /// After a successful call, `position` points to the following field,
+        /// so the next call to `next` continues after the returned value.
         ///
         /// ### Parameters
         /// - `pos`: Zero-based field index to seek to.
@@ -278,11 +279,11 @@ interface box-tuple {
         /// - `some` with a copied field, or `none` if `pos` is outside the
         ///   tuple.
         ///
-        /// ### Raises
-        /// - `box-error
+        /// ### Errors
+        /// - A `box-error` describing the failure.
         @since(version = 0.2.0)
         seek: func(pos: u32) -> result<option<tuple-field>, box-error>;
-    
+
         /// Returns the next field in the tuple.
         ///
         /// Returns `none` if there are no more fields.
@@ -291,8 +292,8 @@ interface box-tuple {
         /// - `some` containing a copied `tuple-field`, or `none` when the
         ///   iterator is exhausted.
         ///
-        /// ### Raises
-        /// - `box-error
+        /// ### Errors
+        /// - A `box-error` describing the failure.
         @since(version = 0.2.0)
         next: func() -> result<option<tuple-field>, box-error>;
     }
