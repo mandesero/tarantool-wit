@@ -157,6 +157,24 @@ wit-bindgen rust --world guest /path/to/repo/wit
 wit-bindgen c-sharp --runtime native-aot --world guest /path/to/repo/wit
 ```
 
+## Validating changes
+
+CI builds and validates the encoded WIT package, generates Markdown API
+documentation and Rust bindings, and uploads them with a semantic contract diff
+against the latest `v*` release. Run the core checks locally with:
+
+```sh
+wkg wit build -d wit -o /tmp/tarantool-tarantool.wasm
+wasm-tools validate /tmp/tarantool-tarantool.wasm
+wit-bindgen markdown --world guest --out-dir /tmp/tarantool-wit-docs wit
+wit-bindgen rust --world guest --out-dir /tmp/tarantool-wit-rust wit
+scripts/report-contract-changes.sh /tmp/tarantool-wit-contract-changes.md
+```
+
+Release tags must use `v<version>` and exactly match the package version in all
+WIT files. The publish workflow runs the complete contract validation workflow
+and verifies the tag ref and version before uploading an artifact.
+
 ## Useful links
 
 - [Introduction to the Component Model](https://component-model.bytecodealliance.org/introduction.html)
