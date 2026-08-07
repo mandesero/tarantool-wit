@@ -6,6 +6,8 @@ use [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-07
+
 ### Added
 
 - The aggregate `guest` world and independently importable Tarantool interfaces.
@@ -28,4 +30,5 @@ use [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   from the component boundary.
 - Runtime-specific logging operations and redundant transaction helpers.
 
-[Unreleased]: https://github.com/mandesero/tarantool-wit/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/mandesero/tarantool-wit/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/mandesero/tarantool-wit/compare/v0.1.4...v0.2.0
