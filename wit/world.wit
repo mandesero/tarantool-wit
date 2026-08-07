@@ -33,3 +33,5 @@ world guest {
     @since(version = 0.2.0)
     import box-tuple;
 }
+
+// SPDX-License-Identifier: BSD-2-Clause

@@ -1,4 +1,3 @@
-
 @since(version = 0.2.0)
 /// Creates copied errors and accesses the current last-error slot.
 interface error {
@@ -69,3 +68,5 @@ interface error {
     @since(version = 0.2.0)
     to-string: func(err: box-error) -> string;
 }
+
+// SPDX-License-Identifier: BSD-2-Clause

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: BSD-2-Clause
+
 set -euo pipefail
 
 release_tag=${1:?usage: check-release-version.sh <release-tag> <ref-type>}

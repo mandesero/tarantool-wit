@@ -56,6 +56,11 @@ boundary and explains the choice between ID records, copied values, opaque
 handles, and WIT resources. Existing consumers should follow the
 [0.2.0 migration guide](docs/migration-0.2.md).
 
+Repository maintenance is documented in [CONTRIBUTING.md](CONTRIBUTING.md),
+[SECURITY.md](SECURITY.md), and [RELEASING.md](RELEASING.md). User-visible
+changes are tracked in [CHANGELOG.md](CHANGELOG.md). The source and published
+package use the [BSD-2-Clause license](LICENSE).
+
 ## Adding Tarantool WIT Interfaces
 
 ### Dependencies

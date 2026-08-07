@@ -139,3 +139,5 @@ interface index {
         next: func() -> result<option<box-tuple>, box-error>;
     }
 }
+
+// SPDX-License-Identifier: BSD-2-Clause

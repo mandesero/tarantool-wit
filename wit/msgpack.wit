@@ -39,3 +39,5 @@ interface msgpack {
     to-json: func(value: msgpack-value) -> result<string, box-error>;
 
 }
+
+// SPDX-License-Identifier: BSD-2-Clause
