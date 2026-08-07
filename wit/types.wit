@@ -745,43 +745,51 @@ interface types {
     %flags: key-part-flags,
   }
 
-  /// Opaque pointer to a Tarantool tuple (MsgPack-encoded).
+  /// Opaque host-issued handle to a Tarantool tuple.
   ///
-  /// Corresponds to C type `box_tuple_t*`.
-  /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/tuple/#c.box_tuple_t
+  /// The handle is meaningful only in the component instance that created it.
+  /// Consumers must not construct or modify handle values. Each returned
+  /// handle owns one reference unless documented otherwise and must be
+  /// released with the public `unref` function from the
+  /// `tarantool:tarantool/box-tuple` interface. This is an interface function,
+  /// not a method on this record.
   @since(version = 0.1.2)
   record box-tuple {
-    ptr: u64,
+    handle: u64,
   }
 
-  /// Opaque pointer to a Tarantool key definition.
+  /// Opaque host-issued handle to a Tarantool key definition.
   ///
-  /// Corresponds to C type `box_key_def_t*`.
-  /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/tuple/#c.box_key_def_t
+  /// The handle is meaningful only in the component instance that created it.
+  /// Consumers must not construct or modify handle values. Each returned
+  /// handle is owned and must be released with the public `delete` function
+  /// from the `tarantool:tarantool/key-def` interface. This is an interface
+  /// function, not a method on this record.
   @since(version = 0.1.2)
   record key-def {
-    ptr: u64,
+    handle: u64,
   }
 
-  /// Opaque pointer to a Tarantool tuple format.
+  /// Opaque host-issued handle to a Tarantool tuple format.
   ///
   /// Each `box-tuple` has an associated `tuple-format`. The default format
   /// (see `tarantool:tarantool/tuple-format::default`) is used for tuples not
   /// attached to any space.
   ///
-  /// Corresponds to C type `box_tuple_format_t*`.
-  /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/tuple/#c.box_tuple_format_t
+  /// The handle is meaningful only in the component instance that created it.
+  /// Consumers must not construct or modify handle values. Each returned
+  /// handle owns one reference unless documented otherwise and must be
+  /// released with the public `unref` function from the
+  /// `tarantool:tarantool/tuple-format` interface. This is an interface
+  /// function, not a method on this record.
   @since(version = 0.1.2)
   record tuple-format {
-    ptr: u64,
+    handle: u64,
   }
 
-  /// Opaque pointer to a raw tuple field (MsgPack-encoded).
-  ///
-  /// Corresponds to the C type `const char*` pointing to a field within a
-  /// MsgPack-encoded tuple.
+  /// A copied tuple field encoded as one complete MessagePack value.
   @since(version = 0.1.2)
   record tuple-field {
-    ptr: u64,
+    data: list<u8>,
   }
 }

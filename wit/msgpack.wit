@@ -72,40 +72,4 @@ interface msgpack {
     @since(version = 0.1.0)
     decode: func(data: list<u8>) -> result<list<u8>, box-error>;
   
-    /// Decodes a MessagePack-encoded value from a raw memory pointer into a UTF-8 JSON string.
-    ///
-    /// This function reads and decodes MessagePack data starting at the given memory address,
-    /// which is typically obtained from a low-level system API or runtime interface.
-    /// The resulting value is converted to a JSON string and returned as a UTF-8 encoded byte array.
-    ///
-    /// ### Parameters
-    /// - `ptr`: A raw memory address (`u64`) pointing to the beginning of a valid MsgPack-encoded value.
-    ///
-    /// ### Returns
-    /// - On success, returns a byte array containing a UTF-8 encoded JSON string.
-    ///
-    /// ### Raises
-    /// - BoxError
-    ///
-    /// ### Safety
-    /// This function performs an unsafe read from the specified memory location. The pointer must
-    /// refer to a valid region of memory containing a complete MessagePack value of known or bounded size.
-    ///
-    /// ### Examples
-    ///
-    /// **Python**
-    /// ```
-    /// decoded_json_bytes = msgpack.decode_from_raw_ptr(ptr)
-    /// json_str = decoded_json_bytes.decode('utf-8')
-    /// obj = json.loads(json_str)
-    /// ```
-    ///
-    /// **JavaScript**
-    /// ```
-    /// const jsonBytes = await decodeFromRawPtr(ptr);
-    /// const jsonString = new TextDecoder().decode(jsonBytes);
-    /// const obj = JSON.parse(jsonString);
-    /// ```
-    @since(version = 0.1.0)
-    decode-from-raw-ptr: func(ptr: u64) -> result<list<u8>, box-error>;
 }

@@ -60,11 +60,26 @@ comparison to Lua and leads to memory leaks.
 With that in mind, the decision is to sacrifice methods in favor of
 preserving the logic and memory safety.
 
-Finally, we have type aliases. These are chosen for types that are
-represented on the WASM side as opaque references. Unlike in records,
-there is no generally useful underlying primitive to extract (like
-`index_id`, for example), so we just wrap this reference into a nicely
-named type.
+Opaque host objects that are not WIT resources are represented by
+host-issued handles. A handle is an identifier resolved by the host, never a
+native address. Consumers must not construct or modify handle values. Hosts
+must reject unknown and stale handles rather than interpret them as pointers.
+
+Handles are scoped to the component instance that created them and must not
+be reused during that instance's lifetime. Copying a handle value creates an
+alias, not a new ownership reference. Unless a function explicitly documents
+otherwise, each returned handle owns one reference and must be released with
+the public `unref` or `delete` function from the corresponding WIT interface.
+These are interface functions, not methods on the handle records. The final
+release invalidates every alias. Double release and use of forged, stale, or
+cross-instance handles are contract violations and trap. Destroying a
+component instance releases all handles that remain live in that instance.
+Handle parameters are borrowed for the duration of a call unless the function
+explicitly documents ownership transfer or retention.
+
+Values that do not require host-side identity, such as an individual tuple
+field, are copied across the component boundary. Native pointers and other
+host memory addresses are never part of the public WIT contract.
 
 ## Adding Tarantool WIT Interfaces
 

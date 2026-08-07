@@ -13,7 +13,9 @@ interface box-tuple {
     /// - `data`: MsgPack-encoded data (e.g., via `msgpack.encode(json.dumps(...))`)
     ///
     /// ### Returns
-    /// - A new `box-tuple`, or `box-error`.
+    /// - A new owned `box-tuple` handle, or `box-error`. The caller must
+    ///   eventually release it with the public `unref` function in this
+    ///   interface.
     /// 
     /// ### Raises
     /// - `box-error
@@ -22,7 +24,8 @@ interface box-tuple {
   
     /// Increases the reference count of the tuple.
     ///
-    /// Call this if you want to store the tuple beyond the current function scope.
+    /// Call this to acquire one additional ownership reference for the same
+    /// handle. Copying the handle alone does not acquire a reference.
     ///
     /// ### Parameters
     /// - `t`: The tuple to retain.
@@ -34,7 +37,8 @@ interface box-tuple {
   
     /// Decreases the reference count of the tuple.
     ///
-    /// If the count reaches zero, the tuple is freed.
+    /// If the count reaches zero, the handle and all of its aliases become
+    /// stale. Releasing a stale handle traps.
     ///
     /// ### Parameters
     /// - `t`: The tuple to release.
@@ -84,30 +88,32 @@ interface box-tuple {
     /// - `t`: The tuple.
     ///
     /// ### Returns
-    /// - The `tuple-format` used to construct the tuple.
+    /// - An owned handle to the `tuple-format` used to construct the tuple.
+    ///   The caller must eventually release it with the public `unref`
+    ///   function from the `tarantool:tarantool/tuple-format` interface.
     ///
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
     format: func(t: box-tuple) -> tuple-format;
   
-    /// Returns a pointer to the field at the specified index (zero-based).
+    /// Returns the field at the specified index (zero-based).
     ///
-    /// The returned value is a pointer to raw MsgPack-encoded data and must be decoded.
+    /// The returned value contains one complete copied MessagePack value.
     ///
     /// ### Parameters
     /// - `t`: The tuple.
     /// - `idx`: Field index (starting from 0).
     ///
     /// ### Returns
-    /// - `tuple-field` (pointer), or `box-error`.
+    /// - A copied `tuple-field`, or `box-error`.
     ///
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
     field: func(t: box-tuple, idx: u32) -> result<tuple-field, box-error>;
   
-    /// Returns a pointer to the field by JSON path expression.
+    /// Returns a copied field selected by a JSON path expression.
     ///
     /// Index base:
     /// - 0 → C-style (zero-based)
@@ -119,7 +125,7 @@ interface box-tuple {
     /// - `index-base`: Either 0 or 1.
     ///
     /// ### Returns
-    /// - `tuple-field` (pointer).
+    /// - A copied `tuple-field` containing one complete MessagePack value.
     ///
     /// ### Raises
     /// - `box-error
@@ -129,7 +135,7 @@ interface box-tuple {
     /// **Python**
     /// ```
     /// field = tt_tuple.field_by_path(tup, "[2].x", 1)
-    /// value = json.loads(msgpack.decode_from_raw_ptr(field).decode('utf-8'))
+    /// value = json.loads(msgpack.decode(field.data).decode('utf-8'))
     /// ```
     @since(version = 0.1.0)
     field-by-path: func(t: box-tuple, path: string, index-base: s32) -> result<tuple-field, box-error>;
@@ -144,7 +150,9 @@ interface box-tuple {
     /// - `expr`: MsgPack-encoded update expression.
     ///
     /// ### Returns
-    /// - A new `box-tuple` with applied updates, or a `box-error`.
+    /// - A new owned `box-tuple` handle with applied updates, or a `box-error`.
+    ///   The caller must eventually release it with the public `unref`
+    ///   function in this interface.
     ///
     /// ### Raises
     /// - `box-error
@@ -161,7 +169,9 @@ interface box-tuple {
     /// - `expr`: MsgPack-encoded upsert expression.
     ///
     /// ### Returns
-    /// - A new `box-tuple` with result, or a `box-error`.
+    /// - A new owned `box-tuple` handle with the result, or a `box-error`.
+    ///   The caller must eventually release it with the public `unref`
+    ///   function in this interface.
     ///
     /// ### Raises
     /// - `box-error
@@ -221,10 +231,13 @@ interface box-tuple {
         /// This allows sequential or random access to MsgPack fields within the tuple.
         ///
         /// ### Parameters
-        /// - `tuple`: The tuple to iterate.
+        /// - `tuple`: Borrowed for this call. The returned iterator retains the
+        ///   tuple independently, so the caller may release its tuple handle
+        ///   after this function returns.
         ///
         /// ### Returns
-        /// - A new `tuple-iterator` object, or a `box-error`.
+        /// - A new `tuple-iterator` object, or a `box-error`. Dropping the
+        ///   iterator releases its retained tuple reference.
         /// 
         /// ### Raises
         /// - `box-error
@@ -252,7 +265,8 @@ interface box-tuple {
         /// - `pos`: Zero-based field index to seek to.
         ///
         /// ### Returns
-        /// - `tuple-field` pointer.
+        /// - A copied `tuple-field`, or a `box-error` if `pos` is outside the
+        ///   tuple.
         ///
         /// ### Raises
         /// - `box-error
@@ -261,15 +275,15 @@ interface box-tuple {
     
         /// Returns the next field in the tuple.
         ///
-        /// Returns `null` if there are no more fields.
+        /// Returns `none` if there are no more fields.
         ///
         /// ### Returns
-        /// - `tuple-field` pointer.
+        /// - `some` containing a copied `tuple-field`, or `none` when the
+        ///   iterator is exhausted.
         ///
         /// ### Raises
         /// - `box-error
         @since(version = 0.1.0)
-        next: func() -> result<tuple-field, box-error>;
-    }  
+        next: func() -> result<option<tuple-field>, box-error>;
+    }
 }
-  

@@ -47,7 +47,9 @@ interface ttbox {
     /// - `tup`: A MsgPack-encoded array representing the tuple.
     ///
     /// ### Returns
-    /// - The inserted tuple.
+    /// - An owned handle to the inserted tuple. The caller must eventually
+    ///   release it with the public `unref` function from the
+    ///   `tarantool:tarantool/box-tuple` interface.
     @since(version = 0.1.0)
     insert: func(space: space, tup: list<u8>) -> result<box-tuple, box-error>;
   
@@ -62,7 +64,9 @@ interface ttbox {
     /// - `ops`: MsgPack-encoded array of update operations.
     ///
     /// ### Returns
-    /// - The updated tuple.
+    /// - An owned handle to the updated tuple. The caller must eventually
+    ///   release it with the public `unref` function from the
+    ///   `tarantool:tarantool/box-tuple` interface.
     @since(version = 0.1.0)
     update: func(index: index, key: list<u8>, ops: list<u8>) -> result<box-tuple, box-error>;
   
@@ -73,7 +77,9 @@ interface ttbox {
     /// - `tup`: A MsgPack-encoded array representing the new tuple.
     ///
     /// ### Returns
-    /// - The replaced tuple.
+    /// - An owned handle to the replaced tuple. The caller must eventually
+    ///   release it with the public `unref` function from the
+    ///   `tarantool:tarantool/box-tuple` interface.
     @since(version = 0.1.0)
     replace: func(space: space, tup: list<u8>) -> result<box-tuple, box-error>;
   
@@ -95,7 +101,9 @@ interface ttbox {
     /// - `key`: MsgPack-encoded key array.
     ///
     /// ### Returns
-    /// - The deleted tuple, if found.
+    /// - An owned handle to the deleted tuple, if found. The caller must
+    ///   eventually release it with the public `unref` function from the
+    ///   `tarantool:tarantool/box-tuple` interface.
     @since(version = 0.1.0)
     delete: func(index: index, key: list<u8>) -> result<box-tuple, box-error>;
   

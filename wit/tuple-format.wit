@@ -9,7 +9,8 @@ interface tuple-format {
     /// This format is used to create tuples not bound to any specific space.
     ///
     /// ### Returns
-    /// - A `tuple-format` object.
+    /// - An owned `tuple-format` handle. The caller must eventually release it
+    ///   with the public `unref` function in this interface.
     @since(version = 0.1.0)
     default: func() -> tuple-format;
   
@@ -18,10 +19,12 @@ interface tuple-format {
     /// Key definitions define constraints and structure (field types, paths, etc.).
     ///
     /// ### Parameters
-    /// - `key-defs`: A list of key definitions that describe indexable parts.
+    /// - `key-defs`: Borrowed key-definition handles used only for this call.
+    ///   The returned format remains valid after the inputs are deleted.
     ///
     /// ### Returns
-    /// - A `tuple-format` object.
+    /// - A new owned `tuple-format` handle. The caller must eventually release
+    ///   it with the public `unref` function in this interface.
     /// 
     /// ### Raises
     /// - `box-error
@@ -44,7 +47,8 @@ interface tuple-format {
   
     /// Increments the reference counter of the tuple format.
     ///
-    /// You should call this if you plan to store the format and use it across calls or threads.
+    /// Call this to acquire one additional ownership reference for the same
+    /// handle. Copying the handle alone does not acquire a reference.
     ///
     /// ### Parameters
     /// - `tf`: Tuple format to retain.
@@ -53,7 +57,8 @@ interface tuple-format {
   
     /// Decrements the reference counter of the tuple format.
     ///
-    /// Must be called to release the format if it was previously retained via `ref`.
+    /// Must be called once for every owned reference. The final `unref`
+    /// invalidates all aliases of the handle. Releasing a stale handle traps.
     ///
     /// ### Parameters
     /// - `tf`: Tuple format to release.
