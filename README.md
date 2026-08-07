@@ -88,6 +88,13 @@ arrays; update expressions are arrays of operation arrays; tuple fields may
 contain any MessagePack value. A missing tuple or field is `none`, while
 malformed input and failed operations are `box-error` values.
 
+`tarantool:tarantool/types::error-code` is the raw unsigned numeric code
+reported by Tarantool, not a closed enum. Consumers should compare only codes
+they understand and retain a fallback for unknown values. The contract does
+not define a separate error category: `error-type`, `message`, and optional
+source location preserve the metadata supplied by the host without freezing
+Tarantool's evolving error set.
+
 ## Adding Tarantool WIT Interfaces
 
 ### Dependencies
