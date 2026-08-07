@@ -24,6 +24,23 @@ interfaces and Tarantool APIs.
 | `transaction.wit` | [`box.txn`](https://www.tarantool.io/en/doc/latest/reference/reference_capi/txn/) |
 | `types.wit` | Common Tarantool types (`box_error_t`, `box_tuple_t`, …) |
 
+## Package and world structure
+
+The public package is `tarantool:tarantool@0.2.0`. Its `guest` world is a
+convenience aggregate containing all general-purpose host interfaces. Each
+interface remains independently importable, so components should import only
+the interfaces they need when they do not require the complete API.
+
+The package identity and interface purposes are stable within the `0.2.x`
+line. Breaking changes to interface signatures or aggregate-world membership
+require a new minor version while the package is below `1.0.0`. Patch releases
+are reserved for compatible fixes. Consumer-specific exports and runtime
+implementation details are not part of the aggregate world.
+
+Version `0.2.0` is a new compatibility baseline: all public WIT declarations
+use `@since(version = 0.2.0)`, and no source compatibility with `0.1.x` is
+implied.
+
 ## Architecture Decision Record
 
 Aside from enums, we opted to express every Tarantool type as either
@@ -159,28 +176,39 @@ requests resolve to GHCR. Run:
    wkg wit fetch
    ```
 
-   Now any `include tarantool:tarantool@<version>` in your `wit/world.wit` will be pulled from
-   `ghcr.io/mandesero/tarantool/tarantool:<version>`, and placed under `wit/deps/` automatically.
+   References to `tarantool:tarantool` in your `wit/world.wit` will be pulled
+   from `ghcr.io/mandesero/tarantool/tarantool:<version>` and placed under
+   `wit/deps/` automatically.
 
 ### Example `wit/world.wit`
 
-In your `wit/world.wit`, just reference the Tarantool sequence or other types as usual. For example:
+Include the aggregate world when the component needs the complete API:
 
 ```wit
 package docs:adder@0.1.0;
 
 world my-world {
-  include tarantool:tarantool/types@0.1.2;
-  // other includes/exports
+  include tarantool:tarantool/guest@0.2.0;
 }
 ```
 
-With either the **manual override** (step 1) or the **registry override** (step 2), `wkg wit fetch` will
-pull in exactly that `tarantool:tarantool@0.1.2` interface.
+Import individual interfaces instead when a smaller contract is preferable:
+
+```wit
+package docs:sequence-user@0.1.0;
+
+world my-world {
+  import tarantool:tarantool/sequence@0.2.0;
+}
+```
+
+With either the **manual override** (step 1) or the **registry override**
+(step 2), `wkg wit fetch` pulls in the referenced
+`tarantool:tarantool@0.2.0` package.
 
 ## Generating bindings
 ```sh
-$ componentize-py --wit-path /path/to/repo --world tarantool bindings /output/dir
+$ componentize-py --wit-path /path/to/repo --world guest bindings /output/dir
 $ wit-bindgen c-sharp --runtime native-aot /path/to/repo
 
 $ wit-bindgen
