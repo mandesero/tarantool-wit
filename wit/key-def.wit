@@ -1,7 +1,7 @@
-@since(version = 0.1.1)
+@since(version = 0.2.0)
 interface key-def {
   
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     use types.{box-error, box-tuple, key-def, key-part, msgpack-value};
   
     /// Creates a new key definition from a list of parts.
@@ -29,7 +29,7 @@ interface key-def {
     /// ]
     /// kd = key_def.new(parts)
     /// ```
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     new: func(parts: list<key-part>) -> result<key-def, box-error>;
   
     /// Creates a deep copy of the given key definition.
@@ -46,7 +46,7 @@ interface key-def {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     duplicate: func(key-def: key-def) -> result<key-def, box-error>;
   
     /// Merges two key definitions into one.
@@ -64,7 +64,7 @@ interface key-def {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     merge: func(left: key-def, right: key-def) -> result<key-def, box-error>;
   
     /// Releases a key definition and invalidates all aliases of its handle.
@@ -77,7 +77,7 @@ interface key-def {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     release: func(key-def: key-def);
   
     /// Returns a list of key parts from a given key definition.
@@ -92,7 +92,7 @@ interface key-def {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     dump-parts: func(key-def: key-def) -> result<list<key-part>, box-error>;
   
     /// Validates whether a given key conforms to the key definition.
@@ -109,7 +109,7 @@ interface key-def {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     validate-key: func(key-def: key-def, key: msgpack-value) -> result<_, box-error>;
   
     /// Validates whether a key **fully** matches the key definition.
@@ -126,7 +126,7 @@ interface key-def {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     validate-full-key: func(key-def: key-def, key: msgpack-value) -> result<_, box-error>;
   
     /// Returns the number of parts in the key definition.
@@ -141,7 +141,7 @@ interface key-def {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     part-count: func(key-def: key-def) -> result<u32, box-error>;
   
     /// Extracts a key from a given tuple based on the key definition.
@@ -162,7 +162,7 @@ interface key-def {
     ///
     /// ### Errors
     /// - Returns a `box-error` if the tuple is invalid or extraction fails.
-    @since(version = 0.1.1)
+    @since(version = 0.2.0)
     extract-key: func(key-def: key-def, %tuple: box-tuple) -> result<msgpack-value, box-error>;
 
     /// Validates whether the tuple contains all required fields
@@ -179,6 +179,6 @@ interface key-def {
     ///
     /// A tuple that does not satisfy the definition is returned as a
     /// `box-error`; it is not a normal boolean result.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     validate-tuple: func(key-def: key-def, %tuple: box-tuple) -> result<_, box-error>;
 }

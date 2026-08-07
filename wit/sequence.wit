@@ -1,6 +1,6 @@
-@since(version = 0.1.0)
+@since(version = 0.2.0)
 interface sequence {
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     use types.{sequence, box-error};
   
     /// Generates the next value of the specified sequence.
@@ -15,7 +15,7 @@ interface sequence {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     next: func(seq: sequence) -> result<s64, box-error>;
   
     /// Returns the current value of the specified sequence.
@@ -31,7 +31,7 @@ interface sequence {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     current: func(seq: sequence) -> result<s64, box-error>;
   
     /// Sets the sequence to a specific value.
@@ -44,7 +44,7 @@ interface sequence {
     ///
     /// ### Raises
     /// - `box-error``
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     set: func(seq: sequence, value: s64) -> result<_, box-error>;
   
     /// Resets the sequence to its initial state.
@@ -59,6 +59,6 @@ interface sequence {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     reset: func(seq: sequence) -> result<_, box-error>;
 }

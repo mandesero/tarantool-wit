@@ -1,7 +1,7 @@
-@since(version = 0.1.0)
+@since(version = 0.2.0)
 interface tuple-format {
     
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     use types.{key-def, box-error, tuple-format};
   
     /// Returns the default tuple format.
@@ -11,7 +11,7 @@ interface tuple-format {
     /// ### Returns
     /// - An owned `tuple-format` handle. The caller must eventually release it
     ///   with the public `release` function in this interface.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     default: func() -> tuple-format;
   
     /// Creates a new tuple format based on a list of key definitions.
@@ -42,7 +42,7 @@ interface tuple-format {
     /// kd = key_def.new(parts)
     /// tf = tuple_format.new([kd])
     /// ```
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     new: func(key-defs: list<key-def>) -> result<tuple-format, box-error>;
   
     /// Increments the reference counter of the tuple format.
@@ -52,7 +52,7 @@ interface tuple-format {
     ///
     /// ### Parameters
     /// - `tf`: Tuple format to retain.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     retain: func(tf: tuple-format);
   
     /// Decrements the reference counter of the tuple format.
@@ -62,6 +62,6 @@ interface tuple-format {
     ///
     /// ### Parameters
     /// - `tf`: Tuple format to release.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     release: func(tf: tuple-format);
 }

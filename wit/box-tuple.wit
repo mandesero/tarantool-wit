@@ -1,7 +1,7 @@
-@since(version = 0.1.0)
+@since(version = 0.2.0)
 interface box-tuple {
   
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     use types.{box-error, box-tuple, tuple-field, tuple-format, key-def, msgpack-value};
   
     /// Creates a new tuple from MessagePack data using the default tuple format.
@@ -19,7 +19,7 @@ interface box-tuple {
     /// 
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     new: func(data: msgpack-value) -> result<box-tuple, box-error>;
   
     /// Increases the reference count of the tuple.
@@ -30,7 +30,7 @@ interface box-tuple {
     /// ### Parameters
     /// - `t`: The tuple to retain.
     ///
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     retain: func(t: box-tuple);
   
     /// Decreases the reference count of the tuple.
@@ -40,7 +40,7 @@ interface box-tuple {
     ///
     /// ### Parameters
     /// - `t`: The tuple to release.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     release: func(t: box-tuple);
   
     /// Returns the number of fields in the tuple (i.e., array size).
@@ -50,7 +50,7 @@ interface box-tuple {
     ///
     /// ### Returns
     /// - Field count as `u32`.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     field-count: func(t: box-tuple) -> u32;
   
     /// Returns the byte size of the internal MessagePack data.
@@ -62,7 +62,7 @@ interface box-tuple {
     ///
     /// ### Returns
     /// - Number of bytes used as `u64`.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     byte-size: func(t: box-tuple) -> u64;
   
     /// Serializes the tuple to a MessagePack byte array.
@@ -79,7 +79,7 @@ interface box-tuple {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     to-bytes: func(t: box-tuple) -> result<msgpack-value, box-error>;
   
     /// Returns the format object associated with the tuple.
@@ -94,7 +94,7 @@ interface box-tuple {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     format: func(t: box-tuple) -> tuple-format;
   
     /// Returns the field at the specified index (zero-based).
@@ -110,7 +110,7 @@ interface box-tuple {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     field: func(t: box-tuple, idx: u32) -> result<option<tuple-field>, box-error>;
   
     /// Returns a copied field selected by a JSON path expression.
@@ -133,7 +133,7 @@ interface box-tuple {
     /// field = tt_tuple.field_by_path(tup, "[1].x")
     /// value = None if field is None else json.loads(msgpack.to_json(field))
     /// ```
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     field-by-path: func(t: box-tuple, path: string) -> result<option<tuple-field>, box-error>;
   
     /// Updates fields in a tuple using the given update expression.
@@ -153,7 +153,7 @@ interface box-tuple {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     update: func(t: box-tuple, expr: msgpack-value) -> result<box-tuple, box-error>;
   
     /// Performs an upsert operation on the tuple using the provided expression.
@@ -173,7 +173,7 @@ interface box-tuple {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     upsert: func(t: box-tuple, expr: msgpack-value) -> result<box-tuple, box-error>;
   
     /// Validates a tuple against the given format.
@@ -192,7 +192,7 @@ interface box-tuple {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     validate: func(t: box-tuple, format: tuple-format) -> result<_, box-error>;
   
     /// Compares two tuples using a given key definition.
@@ -208,7 +208,7 @@ interface box-tuple {
     /// - `0` if equal
     /// - `<0` if `left < right`
     /// - `>0` if `left > right`
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     compare: func(key-def: key-def, left: box-tuple, right: box-tuple) -> s32;
   
     /// Compares a tuple with a key using the given key definition.
@@ -226,14 +226,14 @@ interface box-tuple {
     /// ### Raises
     /// - `box-error` if `key` is malformed, is not an array, does not match the
     ///   key definition, or if comparison fails.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     compare-with-key: func(
         %tuple: box-tuple,
         key: msgpack-value,
         key-def: key-def,
     ) -> result<s32, box-error>;
   
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     resource iterator {
         /// Creates a new iterator over the fields of a tuple.
         ///
@@ -251,20 +251,20 @@ interface box-tuple {
         /// 
         /// ### Raises
         /// - `box-error
-        @since(version = 0.1.0)
+        @since(version = 0.2.0)
         new: static func(%tuple: box-tuple) -> result<iterator, box-error>;
     
         /// Returns the current iterator position (index of the next field).
         ///
         /// ### Returns
         /// - The next field index (zero-based).
-        @since(version = 0.1.0)
+        @since(version = 0.2.0)
         position: func() -> u32;
     
         /// Rewinds the iterator to the beginning of the tuple.
         ///
         /// After this call, the next field will be the first.
-        @since(version = 0.1.0)
+        @since(version = 0.2.0)
         rewind: func();
     
         /// Seeks to a given field index in the tuple.
@@ -280,7 +280,7 @@ interface box-tuple {
         ///
         /// ### Raises
         /// - `box-error
-        @since(version = 0.1.0)
+        @since(version = 0.2.0)
         seek: func(pos: u32) -> result<option<tuple-field>, box-error>;
     
         /// Returns the next field in the tuple.
@@ -293,7 +293,7 @@ interface box-tuple {
         ///
         /// ### Raises
         /// - `box-error
-        @since(version = 0.1.0)
+        @since(version = 0.2.0)
         next: func() -> result<option<tuple-field>, box-error>;
     }
 }

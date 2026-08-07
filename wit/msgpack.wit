@@ -1,7 +1,7 @@
-@since(version = 0.1.0)
+@since(version = 0.2.0)
 interface msgpack {
 
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     use types.{box-error, msgpack-value};
   
     /// Converts a JSON value to MessagePack.
@@ -34,7 +34,7 @@ interface msgpack {
     /// const obj = [1, "Alice", 25];
     /// const encoded = fromJson(JSON.stringify(obj));
     /// ```
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     from-json: func(json: string) -> result<msgpack-value, box-error>;
   
     /// Converts a MessagePack value to JSON.
@@ -63,7 +63,7 @@ interface msgpack {
     /// ```
     /// const obj = JSON.parse(toJson(msgpackBytes));
     /// ```
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     to-json: func(value: msgpack-value) -> result<string, box-error>;
   
 }

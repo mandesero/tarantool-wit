@@ -1,8 +1,8 @@
-@since(version = 0.1.0)
+@since(version = 0.2.0)
 /// General database operations exposed by Tarantool's `box` API.
 interface database {
 
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     use types.{space, box-error, index, box-tuple, msgpack-value};
   
     /// Returns the current schema version of the database.
@@ -11,7 +11,7 @@ interface database {
     ///
     /// ### Returns
     /// - The current unsigned schema version.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     schema-version: func() -> u32;
   
     /// Retrieves a space object by its name.
@@ -23,7 +23,7 @@ interface database {
     ///
     /// ### Returns
     /// - `some` with the space, or `none` if no space has this name.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     space-by-name: func(name: string) -> result<option<space>, box-error>;
   
     /// Retrieves an index object by name within a space.
@@ -37,7 +37,7 @@ interface database {
     /// ### Returns
     /// - `some` with the index, or `none` if the space has no index with this
     ///   name.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     index-by-name: func(%space: space, name: string) -> result<option<index>, box-error>;
   
     /// Inserts a new tuple into a space.
@@ -53,7 +53,7 @@ interface database {
     /// - An owned handle to the inserted tuple. The caller must eventually
     ///   release it with the public `release` function from the
     ///   `tarantool:tarantool/box-tuple` interface.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     insert: func(space: space, tup: msgpack-value) -> result<box-tuple, box-error>;
   
     /// Updates an existing tuple by key in the specified index.
@@ -75,7 +75,7 @@ interface database {
     ///   matches the key. The caller must release a returned handle with the
     ///   public `release` function from the `tarantool:tarantool/box-tuple`
     ///   interface.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     update: func(
         index: index,
         key: msgpack-value,
@@ -92,7 +92,7 @@ interface database {
     /// - An owned handle to the replaced tuple. The caller must eventually
     ///   release it with the public `release` function from the
     ///   `tarantool:tarantool/box-tuple` interface.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     replace: func(space: space, tup: msgpack-value) -> result<box-tuple, box-error>;
   
     /// Performs an UPSERT operation: update if exists, insert otherwise.
@@ -102,7 +102,7 @@ interface database {
     /// - `tup`: One complete MessagePack tuple array to insert.
     /// - `ops`: One complete MessagePack array whose items are update-operation
     ///   arrays.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     upsert: func(index: index, tup: msgpack-value, ops: msgpack-value) -> result<_, box-error>;
   
     /// Deletes a tuple by key from the specified index.
@@ -119,7 +119,7 @@ interface database {
     ///   matches the key. The caller must release a returned handle with the
     ///   public `release` function from the `tarantool:tarantool/box-tuple`
     ///   interface.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     delete: func(index: index, key: msgpack-value) -> result<option<box-tuple>, box-error>;
   
     /// Removes all tuples from the space.
@@ -131,6 +131,6 @@ interface database {
     ///
     /// ### Returns
     /// - `null` on success, or an error.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     truncate: func(space: space) -> result<_, box-error>;
 }

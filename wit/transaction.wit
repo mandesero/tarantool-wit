@@ -1,7 +1,7 @@
-@since(version = 0.1.0)
+@since(version = 0.2.0)
 interface transaction {
 
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     use types.{box-error, transaction-isolation};
   
     /// Returns the current transaction ID.
@@ -11,7 +11,7 @@ interface transaction {
     ///
     /// ### Returns
     /// - `some` with the unsigned transaction ID, or `none`.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     id: func() -> option<u64>;
   
     /// Returns the isolation level of the current transaction.
@@ -20,7 +20,7 @@ interface transaction {
     ///
     /// ### Returns
     /// - `some` with the current isolation level, or `none`.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     isolation: func() -> option<transaction-isolation>;
   
     /// Begins a new transaction.
@@ -30,7 +30,7 @@ interface transaction {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     begin: func() -> result<_, box-error>;
   
     /// Commits the current transaction.
@@ -39,7 +39,7 @@ interface transaction {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     commit: func() -> result<_, box-error>;
   
     /// Rolls back the current transaction.
@@ -48,7 +48,7 @@ interface transaction {
     /// 
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     rollback: func() -> result<_, box-error>;
   
     /// Sets the isolation level for the current transaction.
@@ -60,13 +60,13 @@ interface transaction {
     ///
     /// ### Raises
     /// - `box-error
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     set-isolation: func(isolation: transaction-isolation) -> result<_, box-error>;
   
     /// Requires synchronous replication for the current transaction.
     ///
     /// Commit waits for the configured synchronous replication acknowledgements.
     /// This function has no effect if no transaction is active.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     make-synchronous: func();
   }

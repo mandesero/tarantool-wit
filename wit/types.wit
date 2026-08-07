@@ -1,4 +1,4 @@
-@since(version = 0.1.2)
+@since(version = 0.2.0)
 interface types {
 
   /// Exactly one complete MessagePack value encoded as bytes.
@@ -6,7 +6,7 @@ interface types {
   /// The byte sequence must contain one value and no trailing bytes. Functions
   /// further constrain its shape where required, for example to an array or a
   /// map. Values returned by the host are copied into guest-owned memory.
-  @since(version = 0.1.2)
+  @since(version = 0.2.0)
   type msgpack-value = list<u8>;
 
   /// Numeric Tarantool error code.
@@ -15,7 +15,7 @@ interface types {
   /// unknown to this version of the WIT package. Consumers must preserve and
   /// accept any `u32` value. Symbolic `ER_*` names belong to the Tarantool
   /// version that produced the error and are not part of this contract.
-  @since(version = 0.1.2)
+  @since(version = 0.2.0)
   type error-code = u32;
 
   /// Represents an error returned by Tarantool operations.
@@ -23,7 +23,7 @@ interface types {
   /// The numeric code is preserved exactly as reported by Tarantool. Consumers
   /// must handle codes they do not recognize. No closed error category is
   /// included because Tarantool's error set and classifications may evolve.
-  @since(version = 0.1.2)
+  @since(version = 0.2.0)
   record box-error {
     /// Raw IPROTO or internal Tarantool error code.
     code: error-code,
@@ -38,14 +38,14 @@ interface types {
   }
 
   /// Identifies a Tarantool space by its numeric ID.
-  @since(version = 0.1.0)
+  @since(version = 0.2.0)
   record space {
     /// Unique identifier of the space.
     id: u32,
   }
 
   /// Identifies a Tarantool index and its parent space.
-  @since(version = 0.1.0)
+  @since(version = 0.2.0)
   record index {
     /// Index ID within its parent space.
     id: u32,
@@ -54,7 +54,7 @@ interface types {
   }
 
   /// Context information for logging: file name and line number.
-  @since(version = 0.1.0)
+  @since(version = 0.2.0)
   record log-context {
     /// Name of the source file generating the log.
     file: string,
@@ -65,7 +65,7 @@ interface types {
   /// Defines the severity levels used in Tarantool logging.
   ///
   /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/say/#_CPPv49say_level
-  @since(version = 0.1.0)
+  @since(version = 0.2.0)
   enum log-level {
     /// Recoverable error.
     error,
@@ -82,14 +82,14 @@ interface types {
   }
 
   /// Represents a client session in Tarantool by its ID.
-  @since(version = 0.1.0)
+  @since(version = 0.2.0)
   record session {
     /// Unique session identifier.
     id: u64,
   }
 
   /// Isolation levels available for Tarantool transactions.
-  @since(version = 0.1.0)
+  @since(version = 0.2.0)
   enum transaction-isolation {
     /// Use the global default_isolation_level.
     default,
@@ -106,7 +106,7 @@ interface types {
   /// Iterator types for index scans in Tarantool.
   ///
   /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/box_index/#_CPPv413iterator_type
-  @since(version = 0.1.0)
+  @since(version = 0.2.0)
   enum iterator-type {
     /// Equal.
     equal,
@@ -148,14 +148,14 @@ interface types {
   ///
   /// See GitHub issue for creating sequences from guest languages:
   /// https://github.com/mandesero/tarantool-wit/issues/1
-  @since(version = 0.1.0)
+  @since(version = 0.2.0)
   record sequence {
     /// Numeric identifier of the sequence in Tarantool.
     id: u32,
   }
 
   /// Flags used to modify behavior of key parts in index definitions.
-  @since(version = 0.1.0)
+  @since(version = 0.2.0)
   flags key-part-flags {
     /// Allows NULL values in this key part.
     is-nullable,
@@ -167,7 +167,7 @@ interface types {
   ///
   /// Values correspond to IDs from Tarantool's `_collation` system space.
   /// The numeric value matches the collation id used by the database.
-  @since(version = 0.1.2)
+  @since(version = 0.2.0)
   enum collation {
     none,                               // 0
     unicode,                            // 1
@@ -449,7 +449,7 @@ interface types {
   }
 
   /// Indexed field types
-  @since(version = 0.1.2)
+  @since(version = 0.2.0)
   enum field-type {
     boolean,
     integer,
@@ -467,7 +467,7 @@ interface types {
   }
 
   /// Definition of a single key part in a Tarantool index.
-  @since(version = 0.1.2)
+  @since(version = 0.2.0)
   record key-part {
     /// Field index in the tuple (0-based).
     field-no: u32,
@@ -490,7 +490,7 @@ interface types {
   /// released with the public `release` function from the
   /// `tarantool:tarantool/box-tuple` interface. This is an interface function,
   /// not a method on this record.
-  @since(version = 0.1.2)
+  @since(version = 0.2.0)
   record box-tuple {
     handle: u64,
   }
@@ -502,7 +502,7 @@ interface types {
   /// handle is owned and must be released with the public `release` function
   /// from the `tarantool:tarantool/key-def` interface. This is an interface
   /// function, not a method on this record.
-  @since(version = 0.1.2)
+  @since(version = 0.2.0)
   record key-def {
     handle: u64,
   }
@@ -519,12 +519,12 @@ interface types {
   /// released with the public `release` function from the
   /// `tarantool:tarantool/tuple-format` interface. This is an interface
   /// function, not a method on this record.
-  @since(version = 0.1.2)
+  @since(version = 0.2.0)
   record tuple-format {
     handle: u64,
   }
 
   /// A copied tuple field encoded as one complete MessagePack value.
-  @since(version = 0.1.2)
+  @since(version = 0.2.0)
   type tuple-field = msgpack-value;
 }

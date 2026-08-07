@@ -1,31 +1,35 @@
-package tarantool:tarantool@0.1.4;
+package tarantool:tarantool@0.2.0;
 
-@since(version = 0.1.3)
-world imports {
-    @since(version = 0.1.2)
+/// Aggregate imports for components running inside Tarantool.
+///
+/// Consumers may include this world for the complete host API or import
+/// individual interfaces directly to keep their contract minimal.
+@since(version = 0.2.0)
+world guest {
+    @since(version = 0.2.0)
     import types;
-    @since(version = 0.1.3)
+    @since(version = 0.2.0)
     import metrics;
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     import msgpack;
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     import database;
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     import log;
-    @since(version = 0.1.2)
+    @since(version = 0.2.0)
     import error;
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     import session;
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     import transaction;
-    @since(version = 0.1.2)
+    @since(version = 0.2.0)
     import index;
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     import sequence;
-    @since(version = 0.1.1)
+    @since(version = 0.2.0)
     import key-def;
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     import tuple-format;
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     import box-tuple;
 }

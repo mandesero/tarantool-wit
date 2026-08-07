@@ -1,5 +1,5 @@
 
-@since(version = 0.1.2)
+@since(version = 0.2.0)
 interface error {
 
     use types.{box-error, error-code};
@@ -15,7 +15,7 @@ interface error {
     ///
     /// ### Returns
     /// - A new `box-error` object.
-    @since(version = 0.1.2)
+    @since(version = 0.2.0)
     new: func(code: error-code, message: string) -> box-error;
 
     /// Creates a new error object with the given message, code and source location.
@@ -31,7 +31,7 @@ interface error {
     ///
     /// ### Returns
     /// - A new `box-error` object.
-    @since(version = 0.1.2)
+    @since(version = 0.2.0)
     new-with-location: func(code: error-code, message: string, file: option<string>, line: option<u32>) -> box-error;
   
     /// Sets the given error as the current "last error".
@@ -40,20 +40,20 @@ interface error {
     ///
     /// ### Parameters
     /// - `err`: The error to set.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     set: func(err: box-error);
 
     /// Returns the last error set by the system or user code.
     ///
     /// Corresponds to `box.error.last()`.
     /// Returns `none` if no error is currently set.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     last: func() -> option<box-error>;
 
     /// Clears the last error.
     ///
     /// Corresponds to `box.error.clear()`.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     clear: func();
 
     /// Converts a `box-error` object to a string representation.
@@ -65,6 +65,6 @@ interface error {
     ///
     /// ### Returns
     /// - A human-readable string describing the error.
-    @since(version = 0.1.0)
+    @since(version = 0.2.0)
     to-string: func(err: box-error) -> string;
 }
