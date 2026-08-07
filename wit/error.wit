@@ -9,7 +9,8 @@ interface error {
     /// Corresponds to `box.error.new{ ... }`.
     ///
     /// ### Parameters
-    /// - `code`: Tarantool error code.
+    /// - `code`: Raw numeric Tarantool error code. Codes unknown to this WIT
+    ///   package are accepted without remapping.
     /// - `message`: The error message.
     ///
     /// ### Returns
@@ -22,7 +23,8 @@ interface error {
     /// Corresponds to `box.error.new{ ... }`.
     ///
     /// ### Parameters
-    /// - `code`: Tarantool error code.
+    /// - `code`: Raw numeric Tarantool error code. Codes unknown to this WIT
+    ///   package are accepted without remapping.
     /// - `message`: The error message.
     /// - `file`: File name.
     /// - `line`: Line number in file.
