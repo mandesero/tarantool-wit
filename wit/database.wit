@@ -1,5 +1,6 @@
 @since(version = 0.1.0)
-interface ttbox {
+/// General database operations exposed by Tarantool's `box` API.
+interface database {
 
     @since(version = 0.1.0)
     use types.{space, box-error, index, box-tuple, msgpack-value};
@@ -9,9 +10,9 @@ interface ttbox {
     /// The schema version increases whenever the schema changes, such as creating or dropping spaces or indexes.
     ///
     /// ### Returns
-    /// - A 64-bit integer representing the current schema version.
+    /// - The current unsigned schema version.
     @since(version = 0.1.0)
-    schema-version: func() -> s64;
+    schema-version: func() -> u32;
   
     /// Retrieves a space object by its name.
     ///
@@ -50,7 +51,7 @@ interface ttbox {
     ///
     /// ### Returns
     /// - An owned handle to the inserted tuple. The caller must eventually
-    ///   release it with the public `unref` function from the
+    ///   release it with the public `release` function from the
     ///   `tarantool:tarantool/box-tuple` interface.
     @since(version = 0.1.0)
     insert: func(space: space, tup: msgpack-value) -> result<box-tuple, box-error>;
@@ -72,7 +73,7 @@ interface ttbox {
     /// ### Returns
     /// - `some` with an owned handle to the updated tuple, or `none` if no tuple
     ///   matches the key. The caller must release a returned handle with the
-    ///   public `unref` function from the `tarantool:tarantool/box-tuple`
+    ///   public `release` function from the `tarantool:tarantool/box-tuple`
     ///   interface.
     @since(version = 0.1.0)
     update: func(
@@ -89,7 +90,7 @@ interface ttbox {
     ///
     /// ### Returns
     /// - An owned handle to the replaced tuple. The caller must eventually
-    ///   release it with the public `unref` function from the
+    ///   release it with the public `release` function from the
     ///   `tarantool:tarantool/box-tuple` interface.
     @since(version = 0.1.0)
     replace: func(space: space, tup: msgpack-value) -> result<box-tuple, box-error>;
@@ -116,7 +117,7 @@ interface ttbox {
     /// ### Returns
     /// - `some` with an owned handle to the deleted tuple, or `none` if no tuple
     ///   matches the key. The caller must release a returned handle with the
-    ///   public `unref` function from the `tarantool:tarantool/box-tuple`
+    ///   public `release` function from the `tarantool:tarantool/box-tuple`
     ///   interface.
     @since(version = 0.1.0)
     delete: func(index: index, key: msgpack-value) -> result<option<box-tuple>, box-error>;

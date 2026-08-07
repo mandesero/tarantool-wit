@@ -1,0 +1,22 @@
+@since(version = 0.1.0)
+interface log {
+
+    @since(version = 0.1.0)
+    use types.{log-level, log-context};
+
+    /// Writes a message to the Tarantool log.
+    ///
+    /// The interface exposes non-terminating log levels only. Formatting and
+    /// level-specific convenience helpers belong in guest libraries.
+    ///
+    /// ### Parameters
+    /// - `level`: Message severity.
+    /// - `message`: Message text.
+    /// - `context`: Optional guest source location.
+    @since(version = 0.1.0)
+    write: func(
+        level: log-level,
+        message: string,
+        context: option<log-context>,
+    );
+}
