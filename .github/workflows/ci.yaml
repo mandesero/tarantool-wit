@@ -1,0 +1,72 @@
+name: WIT contract
+
+on:
+  workflow_call:
+    inputs:
+      exclude-tag:
+        description: Tag being validated before publication
+        required: false
+        type: string
+        default: ''
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WKG_VERSION: 0.16.0
+  WASM_TOOLS_VERSION: 1.255.0
+  WIT_BINDGEN_VERSION: 0.60.0
+
+jobs:
+  validate:
+    name: Validate and generate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@v1.21.1
+
+      - name: Install WIT tools
+        shell: bash
+        run: |
+          cargo binstall --no-confirm --version "$WKG_VERSION" wkg
+          cargo binstall --no-confirm --version "$WASM_TOOLS_VERSION" wasm-tools
+          cargo binstall --no-confirm --version "$WIT_BINDGEN_VERSION" wit-bindgen-cli
+
+      - name: Build and validate package
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          wkg wit build -d wit -o artifacts/tarantool-tarantool.wasm
+          wasm-tools validate artifacts/tarantool-tarantool.wasm
+
+      - name: Generate API documentation
+        run: wit-bindgen markdown --world guest --out-dir artifacts/docs wit
+
+      - name: Generate Rust bindings
+        run: wit-bindgen rust --world guest --out-dir artifacts/rust wit
+
+      - name: Report contract changes
+        shell: bash
+        env:
+          CONTRACT_EXCLUDE_TAG: ${{ inputs.exclude-tag }}
+        run: |
+          scripts/report-contract-changes.sh artifacts/contract-changes.md
+          cat artifacts/contract-changes.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload generated contract artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: wit-contract-${{ github.sha }}
+          path: artifacts/
+          if-no-files-found: error
