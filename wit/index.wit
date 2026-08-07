@@ -37,7 +37,9 @@ interface index {
     /// - `rnd`: A random seed value.
     ///
     /// ### Returns
-    /// - A random tuple or a `box-error`.
+    /// - An owned handle to a random tuple, or a `box-error`. The caller must
+    ///   eventually release it with the public `unref` function from the
+    ///   `tarantool:tarantool/box-tuple` interface.
     ///
     /// ### Raises
     /// - `box-error
@@ -53,7 +55,9 @@ interface index {
     /// - `key`: MsgPack-encoded key (as JSON UTF-8 string).
     ///
     /// ### Returns
-    /// - The found tuple or an error.
+    /// - An owned handle to the found tuple, or an error. The caller must
+    ///   eventually release it with the public `unref` function from the
+    ///   `tarantool:tarantool/box-tuple` interface.
     ///
     /// ### Raises
     /// - `box-error
@@ -67,7 +71,9 @@ interface index {
     /// - `key`: MsgPack-encoded key.
     ///
     /// ### Returns
-    /// - The smallest matching tuple or an error.
+    /// - An owned handle to the smallest matching tuple, or an error. The
+    ///   caller must eventually release it with the public `unref` function
+    ///   from the `tarantool:tarantool/box-tuple` interface.
     ///
     /// ### Raises
     /// - `box-error
@@ -81,7 +87,9 @@ interface index {
     /// - `key`: MsgPack-encoded key.
     ///
     /// ### Returns
-    /// - The largest matching tuple or an error.
+    /// - An owned handle to the largest matching tuple, or an error. The caller
+    ///   must eventually release it with the public `unref` function from the
+    ///   `tarantool:tarantool/box-tuple` interface.
     ///
     /// ### Raises
     /// - `box-error
@@ -122,8 +130,10 @@ interface index {
 
         /// Advance the iterator and return the next tuple.
         ///
-        /// Returns either a `box-tuple` (pointer to MsgPack-encoded tuple) or a
-        /// `box-error` if an error occurred or no more tuples remain.
+        /// Returns either an owned `box-tuple` handle or a `box-error` if an
+        /// error occurred or no more tuples remain. The caller must eventually
+        /// release it with the public `unref` function from the
+        /// `tarantool:tarantool/box-tuple` interface.
         @since(version = 0.1.2)
         next: func() -> result<box-tuple, box-error>;
     }

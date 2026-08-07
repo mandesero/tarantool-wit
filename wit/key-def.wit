@@ -13,7 +13,8 @@ interface key-def {
     /// - `parts`: List of `key-part` objects.
     ///
     /// ### Returns
-    /// - A new `key-def` object on success.
+    /// - A new owned `key-def` handle on success. The caller must eventually
+    ///   release it with the public `delete` function in this interface.
     ///
     /// ### Raises
     /// - `box-error
@@ -39,7 +40,9 @@ interface key-def {
     /// - `key-def`: The key definition to duplicate.
     ///
     /// ### Returns
-    /// - A duplicated `key-def`.
+    /// - A new owned `key-def` handle independent of the original. The caller
+    ///   must eventually release it with the public `delete` function in this
+    ///   interface.
     ///
     /// ### Raises
     /// - `box-error
@@ -56,16 +59,18 @@ interface key-def {
     /// - `right`: The key definition to append fields from.
     ///
     /// ### Returns
-    /// - A new merged `key-def`.
+    /// - A new owned `key-def` handle. The caller must eventually release it
+    ///   with the public `delete` function in this interface.
     ///
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
     merge: func(left: key-def, right: key-def) -> result<key-def, box-error>;
   
-    /// Deletes a key definition, freeing any associated memory.
+    /// Deletes a key definition and invalidates all aliases of its handle.
     ///
-    /// You **must** call this for all key definitions you create with `new`, `dup`, or `merge`.
+    /// You **must** call this for all key definitions you create with `new`,
+    /// `dup`, or `merge`. Deleting a stale handle traps.
     ///
     /// ### Parameters
     /// - `key-def`: The key definition to delete.
