@@ -2,21 +2,21 @@
 interface msgpack {
 
     @since(version = 0.1.0)
-    use types.{box-error};
+    use types.{box-error, msgpack-value};
   
-    /// Converts a JSON string into MessagePack format.
+    /// Converts a JSON value to MessagePack.
     ///
-    /// Accepts a UTF-8 encoded JSON string as a byte array and returns the equivalent
-    /// structure encoded in MessagePack format.
+    /// The input must contain one JSON value. The output contains the equivalent
+    /// value encoded as one complete MessagePack value.
     ///
     /// This is useful for sending structured data from higher-level languages
     /// to Tarantool via MessagePack, using familiar JSON as input.
     ///
     /// ### Parameters
-    /// - `data`: A byte array containing a valid UTF-8 encoded JSON string.
+    /// - `json`: A string containing one valid JSON value.
     ///
     /// ### Returns
-    /// - A byte array containing the structure in MessagePack format.
+    /// - The corresponding MessagePack value.
     /// 
     /// ### Raises
     /// - BoxError
@@ -26,30 +26,28 @@ interface msgpack {
     /// **Python**
     /// ```
     /// obj = [1, "Alice", 25]
-    /// json_bytes = json.dumps(obj).encode('utf-8')
-    /// encoded_msgpack = msgpack.encode(json_bytes)
+    /// encoded_msgpack = msgpack.from_json(json.dumps(obj))
     /// ```
     ///
     /// **JavaScript**
     /// ```
     /// const obj = [1, "Alice", 25];
-    /// const jsonBytes = new TextEncoder().encode(JSON.stringify(obj));
-    /// const encoded = await encode(jsonBytes);
+    /// const encoded = fromJson(JSON.stringify(obj));
     /// ```
     @since(version = 0.1.0)
-    encode: func(data: list<u8>) -> result<list<u8>, box-error>;
+    from-json: func(json: string) -> result<msgpack-value, box-error>;
   
-    /// Decodes a MessagePack-encoded byte array into a UTF-8 JSON string.
+    /// Converts a MessagePack value to JSON.
     ///
-    /// This function accepts a byte array containing data in MessagePack format,
-    /// deserializes it into an intermediate structure, and serializes it into a JSON string,
-    /// encoded as UTF-8 bytes.
+    /// Only values representable by the JSON data model are accepted. MessagePack
+    /// extension values, binary values, and maps with non-string keys may fail.
+    /// The returned JSON is not a canonical serialization.
     ///
     /// ### Parameters
-    /// - `data`: A byte array containing data encoded in MessagePack format.
+    /// - `value`: One complete MessagePack value.
     ///
     /// ### Returns
-    /// - On success, returns a byte array representing a UTF-8 encoded JSON string.
+    /// - A string containing the equivalent JSON value.
     ///
     /// ### Raises
     /// - BoxError
@@ -58,18 +56,14 @@ interface msgpack {
     ///
     /// **Python**
     /// ```
-    /// decoded_json_bytes = msgpack.decode(msgpack_bytes)
-    /// json_string = decoded_json_bytes.decode('utf-8')
-    /// obj = json.loads(json_string)
+    /// obj = json.loads(msgpack.to_json(msgpack_bytes))
     /// ```
     ///
     /// **JavaScript**
     /// ```
-    /// const jsonBytes = await decode(msgpackBytes);
-    /// const jsonString = new TextDecoder().decode(jsonBytes);
-    /// const obj = JSON.parse(jsonString);
+    /// const obj = JSON.parse(toJson(msgpackBytes));
     /// ```
     @since(version = 0.1.0)
-    decode: func(data: list<u8>) -> result<list<u8>, box-error>;
+    to-json: func(value: msgpack-value) -> result<string, box-error>;
   
 }

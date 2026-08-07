@@ -2,15 +2,15 @@
 interface box-tuple {
   
     @since(version = 0.1.0)
-    use types.{box-error, box-tuple, tuple-field, tuple-format, key-def};
+    use types.{box-error, box-tuple, tuple-field, tuple-format, key-def, msgpack-value};
   
-    /// Creates a new tuple using the specified format and raw MsgPack data.
+    /// Creates a new tuple from MessagePack data using the default tuple format.
     ///
-    /// The data must be a MsgPack-encoded array (e.g., `[1, "abc", {"x": 42}]`).
+    /// The data must be a MessagePack-encoded array (for example,
+    /// `[1, "abc", {"x": 42}]`).
     ///
     /// ### Parameters
-    /// - `format`: A tuple format object.
-    /// - `data`: MsgPack-encoded data (e.g., via `msgpack.encode(json.dumps(...))`)
+    /// - `data`: One complete MessagePack array containing the tuple fields.
     ///
     /// ### Returns
     /// - A new owned `box-tuple` handle, or `box-error`. The caller must
@@ -20,7 +20,7 @@ interface box-tuple {
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
-    new: func(data: list<u8>) -> result<box-tuple, box-error>;
+    new: func(data: msgpack-value) -> result<box-tuple, box-error>;
   
     /// Increases the reference count of the tuple.
     ///
@@ -55,7 +55,7 @@ interface box-tuple {
     @since(version = 0.1.0)
     field-count: func(t: box-tuple) -> u32;
   
-    /// Returns the byte size of the internal MsgPack data.
+    /// Returns the byte size of the internal MessagePack data.
     ///
     /// Useful for buffer allocations.
     ///
@@ -67,20 +67,22 @@ interface box-tuple {
     @since(version = 0.1.0)
     bsize: func(t: box-tuple) -> u64;
   
-    /// Serializes the tuple back to MsgPack byte array.
+    /// Serializes the tuple to a MessagePack byte array.
     ///
-    /// This data can be passed to `decode` or reused elsewhere.
+    /// This data can be passed to the public `to-json` function from the
+    /// `tarantool:tarantool/msgpack` interface or to another MessagePack
+    /// decoder.
     ///
     /// ### Parameters
     /// - `t`: The tuple.
     ///
     /// ### Returns
-    /// - A MsgPack-encoded byte array, or `box-error`.
+    /// - One complete MessagePack array containing the tuple fields.
     ///
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
-    to-buf: func(t: box-tuple) -> result<list<u8>, box-error>;
+    to-buf: func(t: box-tuple) -> result<msgpack-value, box-error>;
   
     /// Returns the format object associated with the tuple.
     ///
@@ -106,12 +108,12 @@ interface box-tuple {
     /// - `idx`: Field index (starting from 0).
     ///
     /// ### Returns
-    /// - A copied `tuple-field`, or `box-error`.
+    /// - `some` with a copied field, or `none` if `idx` is out of range.
     ///
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
-    field: func(t: box-tuple, idx: u32) -> result<tuple-field, box-error>;
+    field: func(t: box-tuple, idx: u32) -> result<option<tuple-field>, box-error>;
   
     /// Returns a copied field selected by a JSON path expression.
     ///
@@ -125,7 +127,7 @@ interface box-tuple {
     /// - `index-base`: Either 0 or 1.
     ///
     /// ### Returns
-    /// - A copied `tuple-field` containing one complete MessagePack value.
+    /// - `some` with a copied field, or `none` if the path selects no field.
     ///
     /// ### Raises
     /// - `box-error
@@ -135,19 +137,20 @@ interface box-tuple {
     /// **Python**
     /// ```
     /// field = tt_tuple.field_by_path(tup, "[2].x", 1)
-    /// value = json.loads(msgpack.decode(field.data).decode('utf-8'))
+    /// value = None if field is None else json.loads(msgpack.to_json(field))
     /// ```
     @since(version = 0.1.0)
-    field-by-path: func(t: box-tuple, path: string, index-base: s32) -> result<tuple-field, box-error>;
+    field-by-path: func(t: box-tuple, path: string, index-base: s32) -> result<option<tuple-field>, box-error>;
   
     /// Updates fields in a tuple using the given update expression.
     ///
-    /// The expression must be a MsgPack-encoded array of operations like:
+    /// The expression must be a MessagePack-encoded array of operations like:
     /// `[["=", 1, "new_value"]]`, where the first item is an operation, second is field index, and third is the value.
     ///
     /// ### Parameters
     /// - `t`: The tuple to update.
-    /// - `expr`: MsgPack-encoded update expression.
+    /// - `expr`: One complete MessagePack array whose items are update-operation
+    ///   arrays.
     ///
     /// ### Returns
     /// - A new owned `box-tuple` handle with applied updates, or a `box-error`.
@@ -157,7 +160,7 @@ interface box-tuple {
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
-    update: func(t: box-tuple, expr: list<u8>) -> result<box-tuple, box-error>;
+    update: func(t: box-tuple, expr: msgpack-value) -> result<box-tuple, box-error>;
   
     /// Performs an upsert operation on the tuple using the provided expression.
     ///
@@ -166,7 +169,8 @@ interface box-tuple {
     ///
     /// ### Parameters
     /// - `t`: The tuple.
-    /// - `expr`: MsgPack-encoded upsert expression.
+    /// - `expr`: One complete MessagePack array whose items are update-operation
+    ///   arrays.
     ///
     /// ### Returns
     /// - A new owned `box-tuple` handle with the result, or a `box-error`.
@@ -176,7 +180,7 @@ interface box-tuple {
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
-    upsert: func(t: box-tuple, expr: list<u8>) -> result<box-tuple, box-error>;
+    upsert: func(t: box-tuple, expr: msgpack-value) -> result<box-tuple, box-error>;
   
     /// Validates a tuple against the given format.
     ///
@@ -187,12 +191,15 @@ interface box-tuple {
     /// - `format`: Tuple format to validate against.
     ///
     /// ### Returns
-    /// - `true` if valid, `false` otherwise.
+    /// - `ok` if the tuple conforms to the format.
+    ///
+    /// A tuple that does not conform is returned as a `box-error`; it is not a
+    /// normal boolean result.
     ///
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
-    validate: func(t: box-tuple, format: tuple-format) -> bool;
+    validate: func(t: box-tuple, format: tuple-format) -> result<_, box-error>;
   
     /// Compares two tuples using a given key definition.
     ///
@@ -214,21 +221,30 @@ interface box-tuple {
     ///
     /// ### Parameters
     /// - `tuple`: Tuple to compare.
-    /// - `key`: MsgPack-encoded key (e.g., `[1]`)
+    /// - `key`: One complete MessagePack array of key parts.
     /// - `key-def`: Key definition.
     ///
     /// ### Returns
     /// - `0` if key matches tuple
     /// - `<0` if tuple < key
     /// - `>0` if tuple > key
+    ///
+    /// ### Raises
+    /// - `box-error` if `key` is malformed, is not an array, does not match the
+    ///   key definition, or if comparison fails.
     @since(version = 0.1.0)
-    compare-with-key: func(%tuple: box-tuple, key: list<u8>, key-def: key-def) -> s32;
+    compare-with-key: func(
+        %tuple: box-tuple,
+        key: msgpack-value,
+        key-def: key-def,
+    ) -> result<s32, box-error>;
   
     @since(version = 0.1.0)
     resource tuple-iterator {
         /// Creates a new iterator over the fields of a tuple.
         ///
-        /// This allows sequential or random access to MsgPack fields within the tuple.
+        /// This allows sequential or random access to MessagePack fields within
+        /// the tuple.
         ///
         /// ### Parameters
         /// - `tuple`: Borrowed for this call. The returned iterator retains the
@@ -265,13 +281,13 @@ interface box-tuple {
         /// - `pos`: Zero-based field index to seek to.
         ///
         /// ### Returns
-        /// - A copied `tuple-field`, or a `box-error` if `pos` is outside the
+        /// - `some` with a copied field, or `none` if `pos` is outside the
         ///   tuple.
         ///
         /// ### Raises
         /// - `box-error
         @since(version = 0.1.0)
-        seek: func(pos: u32) -> result<tuple-field, box-error>;
+        seek: func(pos: u32) -> result<option<tuple-field>, box-error>;
     
         /// Returns the next field in the tuple.
         ///
