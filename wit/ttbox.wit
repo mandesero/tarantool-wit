@@ -2,7 +2,7 @@
 interface ttbox {
 
     @since(version = 0.1.0)
-    use types.{space, box-error, index, box-tuple};
+    use types.{space, box-error, index, box-tuple, msgpack-value};
   
     /// Returns the current schema version of the database.
     ///
@@ -21,9 +21,9 @@ interface ttbox {
     /// - `name`: The name of the space to retrieve.
     ///
     /// ### Returns
-    /// - A space object if found, or an error otherwise.
+    /// - `some` with the space, or `none` if no space has this name.
     @since(version = 0.1.0)
-    space-by-name: func(name: string) -> result<space, box-error>;
+    space-by-name: func(name: string) -> result<option<space>, box-error>;
   
     /// Retrieves an index object by name within a space.
     ///
@@ -34,78 +34,92 @@ interface ttbox {
     /// - `name`: The name of the index to retrieve.
     ///
     /// ### Returns
-    /// - An index object if found, or an error otherwise.
+    /// - `some` with the index, or `none` if the space has no index with this
+    ///   name.
     @since(version = 0.1.0)
-    index-by-name: func(%space: space, name: string) -> result<index, box-error>;
+    index-by-name: func(%space: space, name: string) -> result<option<index>, box-error>;
   
     /// Inserts a new tuple into a space.
     ///
-    /// The tuple must be provided as a MsgPack-encoded array: `[field1, field2, ...]`.
+    /// The tuple must be one complete MessagePack array:
+    /// `[field1, field2, ...]`.
     ///
     /// ### Parameters
     /// - `space`: The target space.
-    /// - `tup`: A MsgPack-encoded array representing the tuple.
+    /// - `tup`: One complete MessagePack array containing the tuple fields.
     ///
     /// ### Returns
     /// - An owned handle to the inserted tuple. The caller must eventually
     ///   release it with the public `unref` function from the
     ///   `tarantool:tarantool/box-tuple` interface.
     @since(version = 0.1.0)
-    insert: func(space: space, tup: list<u8>) -> result<box-tuple, box-error>;
+    insert: func(space: space, tup: msgpack-value) -> result<box-tuple, box-error>;
   
     /// Updates an existing tuple by key in the specified index.
     ///
-    /// - `key` must be a MsgPack array identifying the tuple, e.g. `[1]`
-    /// - `ops` must be a MsgPack array of operations, e.g. `[[ "=", 2, 30 ]]`
+    /// - `key` must be a MessagePack array identifying the tuple, for example
+    ///   `[1]`.
+    /// - `ops` must be a MessagePack array of operations, for example
+    ///   `[["=", 2, 30]]`.
     ///
     /// ### Parameters
     /// - `index`: The index to use for locating the tuple.
-    /// - `key`: MsgPack-encoded key array.
-    /// - `ops`: MsgPack-encoded array of update operations.
+    /// - `key`: One complete MessagePack array containing exactly one item per
+    ///   index part.
+    /// - `ops`: One complete MessagePack array whose items are update-operation
+    ///   arrays.
     ///
     /// ### Returns
-    /// - An owned handle to the updated tuple. The caller must eventually
-    ///   release it with the public `unref` function from the
-    ///   `tarantool:tarantool/box-tuple` interface.
+    /// - `some` with an owned handle to the updated tuple, or `none` if no tuple
+    ///   matches the key. The caller must release a returned handle with the
+    ///   public `unref` function from the `tarantool:tarantool/box-tuple`
+    ///   interface.
     @since(version = 0.1.0)
-    update: func(index: index, key: list<u8>, ops: list<u8>) -> result<box-tuple, box-error>;
+    update: func(
+        index: index,
+        key: msgpack-value,
+        ops: msgpack-value,
+    ) -> result<option<box-tuple>, box-error>;
   
     /// Replaces an existing tuple or inserts a new one.
     ///
     /// ### Parameters
     /// - `space`: The space to operate on.
-    /// - `tup`: A MsgPack-encoded array representing the new tuple.
+    /// - `tup`: One complete MessagePack array containing the new tuple fields.
     ///
     /// ### Returns
     /// - An owned handle to the replaced tuple. The caller must eventually
     ///   release it with the public `unref` function from the
     ///   `tarantool:tarantool/box-tuple` interface.
     @since(version = 0.1.0)
-    replace: func(space: space, tup: list<u8>) -> result<box-tuple, box-error>;
+    replace: func(space: space, tup: msgpack-value) -> result<box-tuple, box-error>;
   
     /// Performs an UPSERT operation: update if exists, insert otherwise.
     ///
     /// ### Parameters
     /// - `index`: The index used for key lookup.
-    /// - `tup`: A MsgPack-encoded tuple to insert.
-    /// - `ops`: A MsgPack-encoded array of update operations.
+    /// - `tup`: One complete MessagePack tuple array to insert.
+    /// - `ops`: One complete MessagePack array whose items are update-operation
+    ///   arrays.
     @since(version = 0.1.0)
-    upsert: func(index: index, tup: list<u8>, ops: list<u8>) -> result<_, box-error>;
+    upsert: func(index: index, tup: msgpack-value, ops: msgpack-value) -> result<_, box-error>;
   
     /// Deletes a tuple by key from the specified index.
     ///
-    /// The key must be encoded as a MsgPack array, e.g. `[1]`.
+    /// The key must be encoded as a MessagePack array, for example `[1]`.
     ///
     /// ### Parameters
     /// - `index`: The index used for key lookup.
-    /// - `key`: MsgPack-encoded key array.
+    /// - `key`: One complete MessagePack array containing exactly one item per
+    ///   index part.
     ///
     /// ### Returns
-    /// - An owned handle to the deleted tuple, if found. The caller must
-    ///   eventually release it with the public `unref` function from the
-    ///   `tarantool:tarantool/box-tuple` interface.
+    /// - `some` with an owned handle to the deleted tuple, or `none` if no tuple
+    ///   matches the key. The caller must release a returned handle with the
+    ///   public `unref` function from the `tarantool:tarantool/box-tuple`
+    ///   interface.
     @since(version = 0.1.0)
-    delete: func(index: index, key: list<u8>) -> result<box-tuple, box-error>;
+    delete: func(index: index, key: msgpack-value) -> result<option<box-tuple>, box-error>;
   
     /// Removes all tuples from the space.
     ///

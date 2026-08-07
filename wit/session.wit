@@ -2,7 +2,7 @@
 interface session {
 
     @since(version = 0.1.0)
-    use types.{session, box-error};
+    use types.{session, box-error, msgpack-value};
   
     /// Returns the current session.
     ///
@@ -30,14 +30,15 @@ interface session {
   
     /// Sends a raw IPROTO packet to a specific session.
     ///
-    /// Both the header and body must be valid MsgPack-encoded buffers.
+    /// The header must be one complete MessagePack map. The optional body, when
+    /// present, must also be one complete MessagePack map.
     ///
     /// Internally maps to `box_iproto_send(...)` from the C API.
     ///
     /// ### Parameters
     /// - `session`: Target session to send to.
-    /// - `header`: MsgPack-encoded map containing the request header.
-    /// - `body`: MsgPack-encoded body (optional but usually required).
+    /// - `header`: MessagePack map containing the request header.
+    /// - `body`: `some` with a MessagePack map, or `none` to omit the body.
     ///
     /// ### Returns
     /// - `ok` on success
@@ -45,5 +46,9 @@ interface session {
     /// ### Raises
     /// - `box-error`
     @since(version = 0.1.0)
-    iproto-send: func(session: session, header: list<u8>, body: list<u8>) -> result<_, box-error>;
+    iproto-send: func(
+        session: session,
+        header: msgpack-value,
+        body: option<msgpack-value>,
+    ) -> result<_, box-error>;
 }

@@ -2,7 +2,7 @@
 interface key-def {
   
     @since(version = 0.1.0)
-    use types.{box-error, box-tuple, key-def, key-part};
+    use types.{box-error, box-tuple, key-def, key-part, msgpack-value};
   
     /// Creates a new key definition from a list of parts.
     ///
@@ -102,17 +102,15 @@ interface key-def {
     ///
     /// ### Parameters
     /// - `key-def`: Key definition to validate against.
-    /// - `key`: MsgPack-encoded key (e.g., `[1, "abc"]`, encoded with `msgpack.encode(json.dumps(...))`)
+    /// - `key`: One complete MessagePack array of key parts.
     ///
     /// ### Returns
-    /// - A tuple `(is_valid: bool, size: u32)`
-    ///   - `is_valid`: Whether the key is valid.
-    ///   - `size`: Size of decoded key in bytes (if valid), or 0 if invalid.
+    /// - `ok` if the key conforms to the definition.
     ///
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
-    validate-key: func(key-def: key-def, key: list<u8>) -> result<tuple<bool, u32>, box-error>;
+    validate-key: func(key-def: key-def, key: msgpack-value) -> result<_, box-error>;
   
     /// Validates whether a key **fully** matches the key definition.
     ///
@@ -120,15 +118,16 @@ interface key-def {
     ///
     /// ### Parameters
     /// - `key-def`: Key definition to validate against.
-    /// - `key`: MsgPack-encoded key (e.g., `[1, "abc"]`)
+    /// - `key`: One complete MessagePack array with exactly one item per key
+    ///   part.
     ///
     /// ### Returns
-    /// - A tuple `(is_valid: bool, size: u32)` like in `validate-key`.
+    /// - `ok` if the key fully conforms to the definition.
     ///
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
-    validate-full-key: func(key-def: key-def, key: list<u8>) -> result<tuple<bool, u32>, box-error>;
+    validate-full-key: func(key-def: key-def, key: msgpack-value) -> result<_, box-error>;
   
     /// Returns the number of parts in the key definition.
     ///
@@ -147,11 +146,11 @@ interface key-def {
   
     /// Extracts a key from a given tuple based on the key definition.
     ///
-    /// The result is a msgpack-encoded byte buffer representing the key,
+    /// The result is a MessagePack-encoded byte buffer representing the key,
     /// constructed by selecting fields from the input tuple as defined
     /// by the provided key definition.
     ///
-    /// This buffer can be decoded using a msgpack decoder and will contain
+    /// This buffer can be decoded using a MessagePack decoder and will contain
     /// an array of fields corresponding to the key parts.
     ///
     /// ### Parameters
@@ -159,12 +158,12 @@ interface key-def {
     /// - `tuple`: Source `box-tuple`.
     ///
     /// ### Returns
-    /// - A list of bytes (msgpack-encoded array of key fields).
+    /// - One complete MessagePack array containing the extracted key fields.
     ///
     /// ### Errors
     /// - Returns a `box-error` if the tuple is invalid or extraction fails.
     @since(version = 0.1.1)
-    extract-key: func(key-def: key-def, %tuple: box-tuple) -> result<list<u8>, box-error>;
+    extract-key: func(key-def: key-def, %tuple: box-tuple) -> result<msgpack-value, box-error>;
 
     /// Validates whether the tuple contains all required fields
     /// and types as specified by the key definition.
@@ -176,7 +175,10 @@ interface key-def {
     /// - `tuple`: A `box-tuple` to validate.
     ///
     /// ### Returns
-    /// - `true` if the tuple satisfies the key definition, otherwise `false`.
+    /// - `ok` if the tuple satisfies the key definition.
+    ///
+    /// A tuple that does not satisfy the definition is returned as a
+    /// `box-error`; it is not a normal boolean result.
     @since(version = 0.1.0)
-    validate-tuple: func(key-def: key-def, %tuple: box-tuple) -> bool;
+    validate-tuple: func(key-def: key-def, %tuple: box-tuple) -> result<_, box-error>;
 }

@@ -81,6 +81,13 @@ Values that do not require host-side identity, such as an individual tuple
 field, are copied across the component boundary. Native pointers and other
 host memory addresses are never part of the public WIT contract.
 
+MessagePack data uses the shared
+`tarantool:tarantool/types::msgpack-value` alias. Each value is exactly one
+complete MessagePack object with no trailing bytes. Tuple and key inputs are
+arrays; update expressions are arrays of operation arrays; tuple fields may
+contain any MessagePack value. A missing tuple or field is `none`, while
+malformed input and failed operations are `box-error` values.
+
 ## Adding Tarantool WIT Interfaces
 
 ### Dependencies

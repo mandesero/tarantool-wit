@@ -1,6 +1,14 @@
 @since(version = 0.1.2)
 interface types {
 
+  /// Exactly one complete MessagePack value encoded as bytes.
+  ///
+  /// The byte sequence must contain one value and no trailing bytes. Functions
+  /// further constrain its shape where required, for example to an array or a
+  /// map. Values returned by the host are copied into guest-owned memory.
+  @since(version = 0.1.2)
+  type msgpack-value = list<u8>;
+
   /// Tarantool error codes.
   ///
   /// Mirrors the `ER_*` constants (`enum errcode`) used by
@@ -789,7 +797,5 @@ interface types {
 
   /// A copied tuple field encoded as one complete MessagePack value.
   @since(version = 0.1.2)
-  record tuple-field {
-    data: list<u8>,
-  }
+  type tuple-field = msgpack-value;
 }
