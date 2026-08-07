@@ -15,7 +15,7 @@ interface index {
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
-    len: func(index: index) -> result<s64, box-error>;
+    tuple-count: func(index: index) -> result<u64, box-error>;
   
     /// Returns the memory size of the index in bytes.
     ///
@@ -28,7 +28,7 @@ interface index {
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
-    bsize: func(index: index) -> result<s64, box-error>;
+    memory-size: func(index: index) -> result<u64, box-error>;
   
     /// Returns a random tuple from the index.
     ///
@@ -38,7 +38,7 @@ interface index {
     ///
     /// ### Returns
     /// - `some` with an owned tuple handle, or `none` if the index is empty.
-    ///   The caller must release a returned handle with the public `unref`
+    ///   The caller must release a returned handle with the public `release`
     ///   function from the `tarantool:tarantool/box-tuple` interface.
     ///
     /// ### Raises
@@ -56,7 +56,7 @@ interface index {
     ///
     /// ### Returns
     /// - `some` with an owned tuple handle, or `none` if no tuple matches.
-    ///   The caller must release a returned handle with the public `unref`
+    ///   The caller must release a returned handle with the public `release`
     ///   function from the `tarantool:tarantool/box-tuple` interface.
     ///
     /// ### Raises
@@ -72,7 +72,7 @@ interface index {
     ///
     /// ### Returns
     /// - `some` with an owned tuple handle, or `none` if no tuple matches.
-    ///   The caller must release a returned handle with the public `unref`
+    ///   The caller must release a returned handle with the public `release`
     ///   function from the `tarantool:tarantool/box-tuple` interface.
     ///
     /// ### Raises
@@ -88,7 +88,7 @@ interface index {
     ///
     /// ### Returns
     /// - `some` with an owned tuple handle, or `none` if no tuple matches.
-    ///   The caller must release a returned handle with the public `unref`
+    ///   The caller must release a returned handle with the public `release`
     ///   function from the `tarantool:tarantool/box-tuple` interface.
     ///
     /// ### Raises
@@ -100,7 +100,7 @@ interface index {
     ///
     /// ### Parameters
     /// - `index`: Index to query.
-    /// - `iter-type`: One of `iterator-type` values.
+    /// - `mode`: Iterator mode used to match tuples.
     /// - `key`: MessagePack array containing zero or more key parts.
     ///
     /// ### Returns
@@ -109,30 +109,30 @@ interface index {
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
-    count: func(index: index, iter-type: iterator-type, key: msgpack-value) -> result<s64, box-error>;
+    count: func(index: index, mode: iterator-type, key: msgpack-value) -> result<u64, box-error>;
 
     /// Index iterator resource for scanning tuples.
     @since(version = 0.1.2)
-    resource index-iterator {
+    resource iterator {
         /// Allocate and initialize an iterator for the given index.
         ///
         /// - `index`: the index to scan.
-        /// - `iterator-type`: type of scan (see `tarantool:tarantool/types::iterator-type`).
+        /// - `mode`: Scan mode (see `tarantool:tarantool/types::iterator-type`).
         /// - `key`: MessagePack array containing zero or more key parts.
         ///
         /// Returns either a new `iterator` or a `box-error`.
         @since(version = 0.1.2)
-        new-iterator: static func(
+        new: static func(
             index: index,
-            iterator-type: iterator-type,
+            mode: iterator-type,
             key: msgpack-value
-        ) -> result<index-iterator, box-error>;
+        ) -> result<iterator, box-error>;
 
         /// Advance the iterator and return the next tuple.
         ///
         /// Returns `some` with an owned tuple handle, or `none` when the
         /// iterator is exhausted. The caller must release a returned handle
-        /// with the public `unref` function from the
+        /// with the public `release` function from the
         /// `tarantool:tarantool/box-tuple` interface.
         @since(version = 0.1.2)
         next: func() -> result<option<box-tuple>, box-error>;

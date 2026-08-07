@@ -41,25 +41,23 @@ interface types {
   @since(version = 0.1.0)
   record space {
     /// Unique identifier of the space.
-    id: s32,
+    id: u32,
   }
 
-  /// Identifies a Tarantool index, including its parent space and indexing style.
+  /// Identifies a Tarantool index and its parent space.
   @since(version = 0.1.0)
   record index {
     /// Index ID within its parent space.
-    id: s32,
+    id: u32,
     /// Numeric ID of the parent space.
-    space-id: s32,
-    /// Index base: 0 for C-style (0-based), 1 for Lua-style (1-based).
-    index-base: s32,
+    space-id: u32,
   }
 
   /// Context information for logging: file name and line number.
   @since(version = 0.1.0)
   record log-context {
     /// Name of the source file generating the log.
-    filename: string,
+    file: string,
     /// Line number in the source file generating the log.
     line: u32,
   }
@@ -69,44 +67,40 @@ interface types {
   /// https://www.tarantool.io/ru/doc/latest/reference/reference_capi/say/#_CPPv49say_level
   @since(version = 0.1.0)
   enum log-level {
-    /// Critical failure; Tarantool will exit.
-    s-fatal,
-    /// System error based on errno.
-    s-syserror,
     /// Recoverable error.
-    s-error,
+    error,
     /// Severe error.
-    s-crit,
+    critical,
     /// Warning.
-    s-warn,
+    warning,
     /// Informational message.
-    s-info,
+    info,
     /// Verbose message.
-    s-verbose,
+    verbose,
     /// Debug-level message.
-    s-debug,
+    debug,
   }
 
   /// Represents a client session in Tarantool by its ID.
   @since(version = 0.1.0)
   record session {
     /// Unique session identifier.
-    id: s64,
+    id: u64,
   }
 
   /// Isolation levels available for Tarantool transactions.
   @since(version = 0.1.0)
-  enum txn-isolation-level {
+  enum transaction-isolation {
     /// Use the global default_isolation_level.
-    txn-isolation-default,
+    default,
     /// Automatically determine the best isolation level (default).
-    txn-isolation-best-effort,
+    best-effort,
     /// Read only committed, but not unconfirmed changes.
-    txn-isolation-read-committed,
+    read-committed,
     /// Read only confirmed changes.
-    txn-isolation-read-confirmed,
+    read-confirmed,
     /// Read only changes confirmed on any cluster node.
-    txn-isolation-linearizable,
+    linearizable,
   }
 
   /// Iterator types for index scans in Tarantool.
@@ -115,33 +109,33 @@ interface types {
   @since(version = 0.1.0)
   enum iterator-type {
     /// Equal.
-    iter-eq,
+    equal,
     /// Reverse equal.
-    iter-req,
+    reverse-equal,
     /// Full scan (all tuples).
-    iter-all,
+    all,
     /// Less than.
-    iter-lt,
+    less-than,
     /// Less than or equal.
-    iter-le,
+    less-than-or-equal,
     /// Greater than or equal.
-    iter-ge,
+    greater-than-or-equal,
     /// Greater than.
-    iter-gt,
+    greater-than,
     /// Bitmask: all bits set.
-    iter-bits-all-set,
+    bits-all-set,
     /// Bitmask: any bit set.
-    iter-bits-any-set,
+    bits-any-set,
     /// Bitmask: all bits not set.
-    iter-bits-all-not-set,
+    bits-all-not-set,
     /// Range overlaps.
-    iter-overlaps,
+    overlaps,
     /// Spatial index neighbor.
-    iter-neighbor,
-    /// Spatial index nearest neighbor (NP).
-    iter-np,
-    /// Spatial index nearest neighbor (PP).
-    iter-pp,
+    neighbor,
+    /// Next prefix in ascending order.
+    next-prefix,
+    /// Previous prefix in descending order.
+    previous-prefix,
   }
 
   /// A sequence is a generator of strictly increasing integer values in Tarantool.
@@ -157,7 +151,7 @@ interface types {
   @since(version = 0.1.0)
   record sequence {
     /// Numeric identifier of the sequence in Tarantool.
-    id: s32,
+    id: u32,
   }
 
   /// Flags used to modify behavior of key parts in index definitions.
@@ -493,7 +487,7 @@ interface types {
   /// The handle is meaningful only in the component instance that created it.
   /// Consumers must not construct or modify handle values. Each returned
   /// handle owns one reference unless documented otherwise and must be
-  /// released with the public `unref` function from the
+  /// released with the public `release` function from the
   /// `tarantool:tarantool/box-tuple` interface. This is an interface function,
   /// not a method on this record.
   @since(version = 0.1.2)
@@ -505,7 +499,7 @@ interface types {
   ///
   /// The handle is meaningful only in the component instance that created it.
   /// Consumers must not construct or modify handle values. Each returned
-  /// handle is owned and must be released with the public `delete` function
+  /// handle is owned and must be released with the public `release` function
   /// from the `tarantool:tarantool/key-def` interface. This is an interface
   /// function, not a method on this record.
   @since(version = 0.1.2)
@@ -522,7 +516,7 @@ interface types {
   /// The handle is meaningful only in the component instance that created it.
   /// Consumers must not construct or modify handle values. Each returned
   /// handle owns one reference unless documented otherwise and must be
-  /// released with the public `unref` function from the
+  /// released with the public `release` function from the
   /// `tarantool:tarantool/tuple-format` interface. This is an interface
   /// function, not a method on this record.
   @since(version = 0.1.2)

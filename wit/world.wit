@@ -9,15 +9,15 @@ world imports {
     @since(version = 0.1.0)
     import msgpack;
     @since(version = 0.1.0)
-    import ttbox;
+    import database;
     @since(version = 0.1.0)
-    import say;
+    import log;
     @since(version = 0.1.2)
     import error;
     @since(version = 0.1.0)
     import session;
     @since(version = 0.1.0)
-    import txn;
+    import transaction;
     @since(version = 0.1.2)
     import index;
     @since(version = 0.1.0)

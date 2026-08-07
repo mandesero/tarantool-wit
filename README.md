@@ -18,10 +18,10 @@ interfaces and Tarantool APIs.
 | `msgpack.wit` | [`msgpack`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/msgpack/) module |
 | `sequence.wit` | [`box.sequence`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_sequence/) |
 | `session.wit` | [`box.session`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_session/) |
-| `say.wit` | [`log`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/log/) module / `say_*` macros |
-| `ttbox.wit` | General `box` helpers (`space:insert`, `index:update`, …) |
+| `log.wit` | [`log`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/log/) module / `say_*` C API |
+| `database.wit` | General `box` operations (`insert`, `update`, …) |
 | `tuple-format.wit` | [`box.tuple.format`](https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_tuple/#lua-function.box_tuple_format) |
-| `txn.wit` | [`box.txn`](https://www.tarantool.io/en/doc/latest/reference/reference_capi/txn/) |
+| `transaction.wit` | [`box.txn`](https://www.tarantool.io/en/doc/latest/reference/reference_capi/txn/) |
 | `types.wit` | Common Tarantool types (`box_error_t`, `box_tuple_t`, …) |
 
 ## Architecture Decision Record
@@ -69,7 +69,7 @@ Handles are scoped to the component instance that created them and must not
 be reused during that instance's lifetime. Copying a handle value creates an
 alias, not a new ownership reference. Unless a function explicitly documents
 otherwise, each returned handle owns one reference and must be released with
-the public `unref` or `delete` function from the corresponding WIT interface.
+the public `release` function from the corresponding WIT interface.
 These are interface functions, not methods on the handle records. The final
 release invalidates every alias. Double release and use of forged, stale, or
 cross-instance handles are contract violations and trap. Destroying a

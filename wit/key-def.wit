@@ -14,7 +14,7 @@ interface key-def {
     ///
     /// ### Returns
     /// - A new owned `key-def` handle on success. The caller must eventually
-    ///   release it with the public `delete` function in this interface.
+    ///   release it with the public `release` function in this interface.
     ///
     /// ### Raises
     /// - `box-error
@@ -34,20 +34,20 @@ interface key-def {
   
     /// Creates a deep copy of the given key definition.
     ///
-    /// The returned `key-def` is independent of the original and must be deleted manually.
+    /// The returned `key-def` is independent of the original and must be released manually.
     ///
     /// ### Parameters
     /// - `key-def`: The key definition to duplicate.
     ///
     /// ### Returns
     /// - A new owned `key-def` handle independent of the original. The caller
-    ///   must eventually release it with the public `delete` function in this
+    ///   must eventually release it with the public `release` function in this
     ///   interface.
     ///
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
-    dup: func(key-def: key-def) -> result<key-def, box-error>;
+    duplicate: func(key-def: key-def) -> result<key-def, box-error>;
   
     /// Merges two key definitions into one.
     ///
@@ -60,25 +60,25 @@ interface key-def {
     ///
     /// ### Returns
     /// - A new owned `key-def` handle. The caller must eventually release it
-    ///   with the public `delete` function in this interface.
+    ///   with the public `release` function in this interface.
     ///
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
     merge: func(left: key-def, right: key-def) -> result<key-def, box-error>;
   
-    /// Deletes a key definition and invalidates all aliases of its handle.
+    /// Releases a key definition and invalidates all aliases of its handle.
     ///
     /// You **must** call this for all key definitions you create with `new`,
-    /// `dup`, or `merge`. Deleting a stale handle traps.
+    /// `duplicate`, or `merge`. Releasing a stale handle traps.
     ///
     /// ### Parameters
-    /// - `key-def`: The key definition to delete.
+    /// - `key-def`: The key definition to release.
     ///
     /// ### Raises
     /// - `box-error
     @since(version = 0.1.0)
-    delete: func(key-def: key-def);
+    release: func(key-def: key-def);
   
     /// Returns a list of key parts from a given key definition.
     ///
