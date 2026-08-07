@@ -53,3 +53,5 @@ interface tuple-format {
     @since(version = 0.2.0)
     release: func(tf: tuple-format);
 }
+
+// SPDX-License-Identifier: BSD-2-Clause

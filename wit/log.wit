@@ -21,3 +21,5 @@ interface log {
         context: option<log-context>,
     );
 }
+
+// SPDX-License-Identifier: BSD-2-Clause

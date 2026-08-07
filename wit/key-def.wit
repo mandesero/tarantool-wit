@@ -173,3 +173,5 @@ interface key-def {
     @since(version = 0.2.0)
     validate-tuple: func(key-def: key-def, %tuple: box-tuple) -> result<_, box-error>;
 }
+
+// SPDX-License-Identifier: BSD-2-Clause

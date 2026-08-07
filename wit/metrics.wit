@@ -11,3 +11,5 @@ interface metrics {
     @since(version = 0.2.0)
     uptime: func() -> f64;
 }
+
+// SPDX-License-Identifier: BSD-2-Clause

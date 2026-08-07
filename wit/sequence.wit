@@ -59,3 +59,5 @@ interface sequence {
     @since(version = 0.2.0)
     reset: func(seq: sequence) -> result<_, box-error>;
 }
+
+// SPDX-License-Identifier: BSD-2-Clause

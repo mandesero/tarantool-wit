@@ -298,3 +298,5 @@ interface box-tuple {
         next: func() -> result<option<tuple-field>, box-error>;
     }
 }
+
+// SPDX-License-Identifier: BSD-2-Clause

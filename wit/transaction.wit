@@ -71,3 +71,5 @@ interface transaction {
     @since(version = 0.2.0)
     make-synchronous: func();
   }
+
+// SPDX-License-Identifier: BSD-2-Clause

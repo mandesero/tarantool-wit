@@ -56,3 +56,5 @@ interface session {
         body: option<msgpack-value>,
     ) -> result<_, box-error>;
 }
+
+// SPDX-License-Identifier: BSD-2-Clause
