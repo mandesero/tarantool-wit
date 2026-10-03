@@ -35,7 +35,7 @@ jobs:
         run: scripts/check-release-version.sh "${{ github.ref_name }}" "${{ github.ref_type }}"
 
       - name: Install cargo-binstall
-        uses: cargo-bins/cargo-binstall@v1.22.0
+        uses: cargo-bins/cargo-binstall@v1.24.0
 
       - name: Install wkg
         shell: bash
@@ -143,7 +143,7 @@ jobs:
 
       - name: Install cargo-binstall
         if: steps.pages_guard.outputs.deploy == 'true'
-        uses: cargo-bins/cargo-binstall@v1.22.0
+        uses: cargo-bins/cargo-binstall@v1.24.0
 
       - name: Install wit-bindgen
         if: steps.pages_guard.outputs.deploy == 'true'
